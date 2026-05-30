@@ -1,0 +1,51 @@
+# ===== Dependencias =====
+node_modules/
+.pnpm-store/
+
+# Carpeta residual de node_modules en el backend
+.ignored_node_modules/
+erp-backend/.ignored_node_modules/
+
+# ===== Variables de entorno / secretos =====
+.env
+.env.*
+!.env.example
+
+# ===== Salidas de build =====
+dist/
+build/
+out-tsc/
+tmp/
+/out/
+
+# ===== Angular (frontend) =====
+.angular/
+erp-frontend/.angular/cache/
+coverage/
+
+# ===== Prisma (backend) =====
+# Cliente generado por Prisma
+erp-backend/node_modules/.prisma/
+erp-backend/prisma/generated/
+**/generated/prisma/
+
+# ===== Logs =====
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===== IDEs y editores =====
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+.history/
+
+# ===== Sistema operativo =====
+.DS_Store
+Thumbs.db
+desktop.ini

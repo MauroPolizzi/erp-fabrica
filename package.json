@@ -1,0 +1,10 @@
+{
+  "name": "erp-fabrica",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo ERP PerliNor (backend + frontend)",
+  "scripts": {
+    "backend:dev": "pnpm --filter erp-backend dev",
+    "frontend:start": "pnpm --filter erp-frontend start"
+  }
+}
