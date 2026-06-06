@@ -1,0 +1,48 @@
+# Entorno de desarrollo local: PostgreSQL 16 + Redis 7 + Adminer
+# Levantar:  docker compose up -d
+# Detener:   docker compose down
+services:
+  postgres:
+    image: postgres:16
+    container_name: erp_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: erp_user
+      POSTGRES_PASSWORD: erp_dev_password
+      POSTGRES_DB: erp_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - erp_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erp_user -d erp_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: erp_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - erp_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer:latest
+    container_name: erp_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  erp_pgdata:
+  erp_redisdata:
