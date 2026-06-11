@@ -27,4 +27,7 @@ export class AppError extends Error {
   static conflict(message: string) {
     return new AppError(409, message);
   }
+  static unprocessable(message: string, details?: unknown) {
+    return new AppError(422, message, details);
+  }
 }

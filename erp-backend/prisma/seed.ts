@@ -63,7 +63,19 @@ async function main() {
     },
   });
 
-  console.log('Seed completado: permisos, roles y usuario admin@perlinor.local (admin123).');
+  // ── Categorías de productos terminados (demo de venta) ──
+  const finishedCategories = ['Materiales de construcción', 'Cemento y áridos'];
+  for (const name of finishedCategories) {
+    await prisma.category.upsert({
+      where: { name_type: { name, type: 'FINISHED_PRODUCT' } },
+      update: {},
+      create: { name, type: 'FINISHED_PRODUCT' },
+    });
+  }
+
+  console.log(
+    'Seed completado: permisos, roles, usuario admin@perlinor.local (admin123) y categorías de producto terminado.',
+  );
 }
 
 main()
