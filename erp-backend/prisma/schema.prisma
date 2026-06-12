@@ -153,7 +153,7 @@ model RawMaterialMovement {
 
 model FinishedProduct {
   id           String   @id @default(uuid())
-  sku          String   @unique
+  sku          String   @unique // codigo de referencia
   name         String
   categoryId   String   @map("category_id")
   unit         String

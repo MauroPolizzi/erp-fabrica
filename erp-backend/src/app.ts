@@ -10,6 +10,7 @@ import { errorHandler, notFoundHandler } from './shared/middlewares/error-handle
 import { authRoutes } from './modules/auth/auth.routes';
 import { usersRoutes } from './modules/users/users.routes';
 import { employeesRoutes } from './modules/employees/employees.routes';
+import { categoriesRoutes } from './modules/inventory/categories/categories.routes';
 import { rawMaterialsRoutes } from './modules/inventory/raw-materials/raw-materials.routes';
 import { finishedProductsRoutes } from './modules/inventory/finished-products/finished-products.routes';
 import { productionRoutes } from './modules/production/production.routes';
@@ -38,6 +39,7 @@ export function createApp(): Application {
   api.use('/auth', authRoutes);
   api.use('/users', usersRoutes);
   api.use('/employees', employeesRoutes);
+  api.use('/categories', categoriesRoutes);
   api.use('/inventory/raw-materials', rawMaterialsRoutes);
   api.use('/inventory/finished-products', finishedProductsRoutes);
   api.use('/production', productionRoutes);
