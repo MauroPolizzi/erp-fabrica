@@ -236,7 +236,7 @@ enum PaymentMethod {
 model Customer {
   id        String   @id @default(uuid())
   name      String
-  taxId     String?  @map("tax_id")
+  taxId     String?  @map("tax_id") // documento del cliente
   email     String?
   phone     String?
   address   String?
