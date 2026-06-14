@@ -3,7 +3,7 @@ import { authenticate } from '../../auth/auth.middleware';
 import { requirePermission } from '../../../shared/middlewares/permission';
 import { validate } from '../../../shared/middlewares/validate';
 import { finishedProductsController } from './finished-products.controller';
-import { createFinishedProductSchema, updateFinishedProductSchema } from './finished-products.dto';
+import { createFinishedProductSchema, createStockMovementSchema, updateFinishedProductSchema } from './finished-products.dto';
 
 export const finishedProductsRoutes = Router();
 
@@ -14,3 +14,7 @@ finishedProductsRoutes.get('/:id', requirePermission('inventory.read'), finished
 finishedProductsRoutes.post('/', requirePermission('inventory.create'), validate(createFinishedProductSchema), finishedProductsController.create);
 finishedProductsRoutes.patch('/:id', requirePermission('inventory.update'), validate(updateFinishedProductSchema), finishedProductsController.update);
 finishedProductsRoutes.delete('/:id', requirePermission('inventory.delete'), finishedProductsController.deactivate);
+
+// Movimientos de stock (sub-recurso del producto)
+finishedProductsRoutes.get('/:id/movements', requirePermission('inventory.read'), finishedProductsController.listMovements);
+finishedProductsRoutes.post('/:id/movements', requirePermission('inventory.update'), validate(createStockMovementSchema), finishedProductsController.createMovement);

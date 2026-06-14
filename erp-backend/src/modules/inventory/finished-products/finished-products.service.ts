@@ -1,8 +1,9 @@
+import { Decimal } from 'decimal.js';
 import { prisma } from '../../../config/database';
 import { writeAuditLog } from '../../../shared/middlewares/audit-log';
 import { AppError } from '../../../shared/utils/app-error';
 import { buildMeta, type PaginationParams } from '../../../shared/utils/pagination';
-import type { CreateFinishedProductDto, UpdateFinishedProductDto } from './finished-products.dto';
+import type { CreateFinishedProductDto, CreateStockMovementDto, UpdateFinishedProductDto } from './finished-products.dto';
 
 const publicSelect = {
   id: true,
@@ -86,5 +87,45 @@ export const finishedProductsService = {
     const product = await prisma.finishedProduct.update({ where: { id }, data: { isActive: false }, select: publicSelect });
     await writeAuditLog({ userId: actorId, action: 'DELETE', entity: 'FinishedProduct', entityId: id, oldValues: before, newValues: product });
     return product;
+  },
+
+  /** Historial de movimientos de stock de un producto (paginado). */
+  async listMovements(id: string, params: PaginationParams) {
+    await this.getById(id); // valida existencia (404 si no existe)
+    const where = { finishedProductId: id };
+
+    const [data, total] = await Promise.all([
+      prisma.finishedProductMovement.findMany({ where, skip: params.skip, take: params.limit, orderBy: { createdAt: 'desc' } }),
+      prisma.finishedProductMovement.count({ where }),
+    ]);
+
+    return { data, meta: buildMeta(total, params) };
+  },
+
+  /**
+   * Registra un movimiento IN (suma) o ADJUST (fija el stock) y actualiza
+   * currentStock dentro de una transacción. Los OUT los genera la venta (F4).
+   */
+  async createMovement(id: string, dto: CreateStockMovementDto, actorId?: string) {
+    const product = await prisma.finishedProduct.findUnique({ where: { id } });
+    if (!product) throw AppError.notFound('Producto terminado no encontrado');
+
+    const current = new Decimal(product.currentStock.toString());
+    const quantity = new Decimal(dto.quantity);
+    const newStock = dto.type === 'IN' ? current.plus(quantity) : quantity;
+
+    const [movement, updated] = await prisma.$transaction([
+      prisma.finishedProductMovement.create({
+        data: { finishedProductId: id, type: dto.type, quantity: dto.quantity, reference: dto.reference },
+      }),
+      prisma.finishedProduct.update({
+        where: { id },
+        data: { currentStock: newStock.toString() },
+        select: publicSelect,
+      }),
+    ]);
+
+    await writeAuditLog({ userId: actorId, action: 'CREATE', entity: 'FinishedProductMovement', entityId: movement.id, newValues: movement });
+    return { movement, currentStock: updated.currentStock };
   },
 };

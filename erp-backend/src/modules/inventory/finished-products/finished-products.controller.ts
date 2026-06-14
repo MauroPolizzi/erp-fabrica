@@ -46,4 +46,23 @@ export const finishedProductsController = {
       next(err);
     }
   },
+
+  async listMovements(req: Request, res: Response, next: NextFunction) {
+    try {
+      const pagination = getPagination(req.query);
+      const { data, meta } = await finishedProductsService.listMovements(String(req.params.id), pagination);
+      res.json(ok(data, meta));
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async createMovement(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await finishedProductsService.createMovement(String(req.params.id), req.body, req.user?.id);
+      res.status(201).json(ok(result));
+    } catch (err) {
+      next(err);
+    }
+  },
 };

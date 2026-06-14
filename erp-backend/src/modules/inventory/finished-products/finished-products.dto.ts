@@ -19,3 +19,13 @@ export const updateFinishedProductSchema = z.object({
 
 export type CreateFinishedProductDto = z.infer<typeof createFinishedProductSchema>;
 export type UpdateFinishedProductDto = z.infer<typeof updateFinishedProductSchema>;
+
+// Movimientos de stock: solo IN (alta de stock, suma) o ADJUST (fija el stock).
+// Los OUT los genera exclusivamente la venta (F4).
+export const createStockMovementSchema = z.object({
+  type: z.enum(['IN', 'ADJUST']),
+  quantity: z.coerce.number().positive(),
+  reference: z.string().optional(),
+});
+
+export type CreateStockMovementDto = z.infer<typeof createStockMovementSchema>;
