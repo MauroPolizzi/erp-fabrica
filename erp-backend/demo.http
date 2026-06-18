@@ -1,0 +1,124 @@
+### Demo de venta de material — flujo end-to-end
+### Requiere la extensión REST Client (VS Code) o IntelliJ HTTP Client.
+### Orden: login -> cliente -> (categoría) -> material -> stock -> venta -> consultas.
+### Ejecutar de arriba hacia abajo; las variables se capturan de cada respuesta.
+
+@host = http://localhost:3000/api
+
+### 1. Login (usuario sembrado)
+# @name login
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@perlinor.local",
+  "password": "admin123"
+}
+
+###
+@token = {{login.response.body.data.accessToken}}
+
+### 2. Crear cliente
+# @name createCustomer
+POST {{host}}/commercial/customers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Constructora SA",
+  "taxId": "30123456789",
+  "email": "compras@constructora.com",
+  "phone": "381-5551234",
+  "address": "Av. Siempre Viva 742"
+}
+
+###
+@customerId = {{createCustomer.response.body.data.id}}
+
+### 3. Listar categorías de producto terminado (usar una sembrada)
+# @name categories
+GET {{host}}/categories?type=FINISHED_PRODUCT
+Authorization: Bearer {{token}}
+
+###
+@categoryId = {{categories.response.body.data.0.id}}
+
+### 3b. (Opcional) Crear una categoría nueva
+POST {{host}}/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Cemento y áridos",
+  "type": "FINISHED_PRODUCT"
+}
+
+### 4. Crear material (nace con currentStock = 0)
+# @name createProduct
+POST {{host}}/inventory/finished-products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "sku": "CEM-50",
+  "name": "Cemento Portland 50kg",
+  "categoryId": "{{categoryId}}",
+  "unit": "BOLSA",
+  "salePrice": 8500
+}
+
+###
+@productId = {{createProduct.response.body.data.id}}
+
+### 5. Cargar stock inicial (movimiento IN)
+POST {{host}}/inventory/finished-products/{{productId}}/movements
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "IN",
+  "quantity": 100,
+  "reference": "Stock inicial"
+}
+
+### 6. Registrar venta (descuenta stock, genera movimientos OUT)
+# @name createSale
+POST {{host}}/commercial/sales
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "paymentMethod": "CASH",
+  "items": [
+    { "finishedProductId": "{{productId}}", "quantity": 5 }
+  ]
+}
+
+###
+@saleId = {{createSale.response.body.data.id}}
+
+### 7a. Consultar la venta con su detalle
+GET {{host}}/commercial/sales/{{saleId}}
+Authorization: Bearer {{token}}
+
+### 7b. Consultar el stock actualizado del material (debería ser 95)
+GET {{host}}/inventory/finished-products/{{productId}}
+Authorization: Bearer {{token}}
+
+### 7c. Ver historial de movimientos del material (IN + OUT)
+GET {{host}}/inventory/finished-products/{{productId}}/movements
+Authorization: Bearer {{token}}
+
+### 8. (Negativo) Venta sin stock suficiente -> 422 y rollback total
+POST {{host}}/commercial/sales
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "paymentMethod": "CASH",
+  "items": [
+    { "finishedProductId": "{{productId}}", "quantity": 1000 }
+  ]
+}
