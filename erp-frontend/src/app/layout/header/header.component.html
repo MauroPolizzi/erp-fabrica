@@ -1,0 +1,17 @@
+<header
+  class="flex items-center justify-between h-[var(--header-height)] px-4 bg-surface-0 border-b border-surface-200"
+>
+  <p-button
+    icon="pi pi-bars"
+    [text]="true"
+    severity="secondary"
+    (onClick)="toggleSidebar.emit()"
+    ariaLabel="Alternar menú"
+  />
+
+  <div class="flex items-center gap-2">
+    <span class="text-sm text-text-muted hidden sm:inline">{{ userEmail() }}</span>
+    <p-button icon="pi pi-user" [rounded]="true" [text]="true" severity="secondary" (onClick)="menu.toggle($event)" />
+    <p-menu #menu [model]="menuItems" [popup]="true" />
+  </div>
+</header>

@@ -1,0 +1,19 @@
+<header class="flex flex-wrap items-center justify-between gap-3 mb-5">
+  <div>
+    <h1 class="text-xl font-semibold text-surface-900 m-0">{{ title() }}</h1>
+    @if (subtitle()) {
+      <p class="text-sm text-text-muted mt-1 mb-0">{{ subtitle() }}</p>
+    }
+  </div>
+  <div class="flex items-center gap-2">
+    <ng-content />
+    @if (actionLabel()) {
+      <p-button
+        [label]="actionLabel()"
+        [icon]="actionIcon()"
+        size="small"
+        (onClick)="action.emit()"
+      />
+    }
+  </div>
+</header>

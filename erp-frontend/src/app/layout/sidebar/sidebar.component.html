@@ -1,0 +1,42 @@
+<aside
+  class="flex flex-col bg-surface-900 text-surface-100 h-full transition-all duration-200"
+  [style.width]="collapsed() ? '4rem' : 'var(--sidebar-width)'"
+>
+  <div class="flex items-center gap-2 h-[var(--header-height)] px-4 border-b border-surface-800">
+    <i class="pi pi-box text-accent text-xl"></i>
+    @if (!collapsed()) {
+      <span class="font-semibold tracking-tight">PerliNor ERP</span>
+    }
+  </div>
+
+  <nav class="flex-1 py-3 overflow-y-auto">
+    <ul class="list-none m-0 p-0">
+      @for (item of items; track item.label) {
+        <li>
+          @if (item.disabled || !item.route) {
+            <span
+              class="flex items-center gap-3 px-4 py-2.5 text-surface-300 opacity-50 cursor-not-allowed select-none"
+              [title]="'Próximamente'"
+            >
+              <i [class]="item.icon"></i>
+              @if (!collapsed()) {
+                <span class="text-sm">{{ item.label }}</span>
+              }
+            </span>
+          } @else {
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="bg-primary-700 text-white"
+              class="flex items-center gap-3 px-4 py-2.5 text-surface-100 no-underline hover:bg-surface-800 transition-colors"
+            >
+              <i [class]="item.icon"></i>
+              @if (!collapsed()) {
+                <span class="text-sm">{{ item.label }}</span>
+              }
+            </a>
+          }
+        </li>
+      }
+    </ul>
+  </nav>
+</aside>

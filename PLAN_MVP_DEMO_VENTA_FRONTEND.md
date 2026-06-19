@@ -234,6 +234,37 @@ erp-frontend/src/app/
 - **Estados de UI:** loading (skeletons/spinner), vacío (empty states con CTA), error (toasts vía `NotificationService` — **montar `<p-toast>`**), validación inline en formularios.
 - **Responsive y accesibilidad:** layout mobile-first, sidebar colapsable, labels asociados, foco visible y contraste suficiente.
 
+### 5.5 Convención de archivos de componente (OBLIGATORIA)
+
+> Regla vigente para **todos** los componentes (existentes y nuevos). Separación estricta de responsabilidades por archivo.
+
+- **Lógica → `.ts`:** el archivo TypeScript contiene únicamente la lógica del componente. No incluye marcado.
+- **Template → `.html`:** todo el HTML va en un archivo `.html` independiente referenciado con **`templateUrl`**. **Prohibido** usar `template:` inline en el decorador `@Component`.
+- **Estilos → archivo dedicado:** cuando el componente requiera estilos propios, van en su archivo (`.css`, según la config actual del proyecto) referenciado con `styleUrl`/`styleUrls`. Si el componente es 100% Tailwind y **no** tiene estilos propios, **no** se crea archivo de estilos vacío (se agrega recién cuando haga falta).
+- **No mezclar** lógica de negocio con presentación.
+
+**Forma obligatoria:**
+```typescript
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  templateUrl: './example.component.html',
+  // styleUrl: './example.component.css',  // solo si tiene estilos propios
+})
+export class ExampleComponent {}
+```
+
+**Estructura por componente** (el `.css` y el `.spec.ts` son opcionales según necesidad):
+```text
+feature/
+├── component-name.component.ts      # lógica (obligatorio)
+├── component-name.component.html     # template (obligatorio)
+├── component-name.component.css      # estilos propios (solo si los hay)
+└── component-name.component.spec.ts  # tests (en la fase de pulido/P3)
+```
+
+> Antes de iniciar cualquier tarea nueva del roadmap: verificar que no se introduzcan templates inline y migrar los que aparezcan. Los 10 componentes de las Fases 0–1 ya cumplen esta convención.
+
 ---
 
 ## 6. Capa de Servicios de Dominio (a crear sobre `ApiService`)
@@ -334,7 +365,7 @@ Flujo objetivo: **Cliente → Material → Stock → Venta**. Lo que falta para 
 
 ## 9. Roadmap Reestructurado (solo trabajo pendiente)
 
-> Convenciones obligatorias a respetar (ya presentes en el repo): standalone components, **Signals** para estado local, **Reactive Forms**, lazy-loading, **server-side pagination**, consumo vía `ApiService`, errores vía `NotificationService`/`errorInterceptor`, rutas con `data.permission`. **No** introducir NgRx, ni otra lib HTTP, ni otro sistema de toasts.
+> Convenciones obligatorias a respetar (ya presentes en el repo): standalone components, **template en archivo `.html` vía `templateUrl` (nunca inline — ver §5.5)**, **Signals** para estado local, **Reactive Forms**, lazy-loading, **server-side pagination**, consumo vía `ApiService`, errores vía `NotificationService`/`errorInterceptor`, rutas con `data.permission`. **No** introducir NgRx, ni otra lib HTTP, ni otro sistema de toasts.
 
 ### ✅ Fase 1 original — `core` / servicios / guards / interceptores
 **COMPLETADA — NO REQUIERE TRABAJO** (lo que falta de aquella fase —layout, shared, pipes, theming, rutas— se mueve a la nueva **Fase 0**).

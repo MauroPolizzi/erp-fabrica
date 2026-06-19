@@ -1,0 +1,82 @@
+<p-table
+  [value]="rows()"
+  [columns]="columns()"
+  [lazy]="true"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="rowsPerPage()"
+  [totalRecords]="total()"
+  [rowsPerPageOptions]="[10, 20, 50]"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="{first}–{last} de {totalRecords}"
+  styleClass="p-datatable-sm"
+  (onLazyLoad)="onLazyLoad($event)"
+>
+  @if (searchable()) {
+    <ng-template pTemplate="caption">
+      <div class="flex justify-end">
+        <p-iconField iconPosition="left">
+          <p-inputIcon styleClass="pi pi-search" />
+          <input
+            pInputText
+            type="text"
+            [placeholder]="searchPlaceholder()"
+            (input)="onSearch($event)"
+          />
+        </p-iconField>
+      </div>
+    </ng-template>
+  }
+
+  <ng-template pTemplate="header">
+    <tr>
+      @for (col of columns(); track col.field) {
+        <th [pSortableColumn]="col.sortable ? col.field : undefined" [class]="col.cellClass ?? ''">
+          {{ col.header }}
+          @if (col.sortable) {
+            <p-sortIcon [field]="col.field" />
+          }
+        </th>
+      }
+      @if (rowActions) {
+        <th class="w-1 text-right">Acciones</th>
+      }
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-row>
+    <tr>
+      @for (col of columns(); track col.field) {
+        <td [class]="col.cellClass ?? ''">
+          @switch (col.type) {
+            @case ('currency') {
+              {{ row[col.field] | currencyArs }}
+            }
+            @case ('date') {
+              {{ row[col.field] | dateFormat }}
+            }
+            @case ('datetime') {
+              {{ row[col.field] | dateFormat: 'datetime' }}
+            }
+            @default {
+              {{ row[col.field] ?? '—' }}
+            }
+          }
+        </td>
+      }
+      @if (rowActions) {
+        <td class="text-right whitespace-nowrap">
+          <ng-container [ngTemplateOutlet]="rowActions" [ngTemplateOutletContext]="{ $implicit: row }" />
+        </td>
+      }
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td [attr.colspan]="colspan()" class="text-center text-text-muted py-8">
+        {{ emptyMessage() }}
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

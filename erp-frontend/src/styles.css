@@ -2,8 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Sistema de diseño — PerliNor ERP
+ * Tokens definidos una sola vez como variables CSS y consumidos por Tailwind
+ * (tailwind.config.js -> theme.extend) y por estilos propios. PrimeNG usa su
+ * tema lara-light-blue (styled-mode v17): mantenemos el primario en la misma
+ * familia azul para que PrimeNG y los utilitarios Tailwind no choquen.
+ */
+:root {
+  /* Marca / primario (familia azul, alineada con lara-light-blue) */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+
+  /* Acento industrial (ámbar/construcción) para destacados puntuales */
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+
+  /* Neutros / superficies */
+  --color-surface-0: #ffffff;
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --color-surface-200: #e2e8f0;
+  --color-surface-300: #cbd5e1;
+  --color-surface-700: #334155;
+  --color-surface-800: #1e293b;
+  --color-surface-900: #0f172a;
+
+  /* Estados semánticos */
+  --color-success: #16a34a;
+  --color-warn: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #0284c7;
+
+  /* Texto */
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+
+  /* Radios y sombras */
+  --radius-md: 0.5rem;
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+
+  /* Layout */
+  --sidebar-width: 16rem;
+  --header-height: 3.5rem;
+}
+
 html,
 body {
   height: 100%;
   margin: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-surface-50);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Toast/diálogos por encima del layout */
+.p-toast {
+  z-index: 1100;
 }
