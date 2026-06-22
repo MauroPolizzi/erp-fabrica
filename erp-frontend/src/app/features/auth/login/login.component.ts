@@ -30,8 +30,8 @@ export class LoginComponent implements OnInit {
   readonly errorMessage = signal('');
 
   readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]],
+    email: ['admin@perlinor.local', [Validators.required, Validators.email]],
+    password: ['admin123', [Validators.required]],
   });
 
   ngOnInit(): void {

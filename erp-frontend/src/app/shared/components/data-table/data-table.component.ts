@@ -92,6 +92,10 @@ export class DataTableComponent<T = Record<string, unknown>> {
 
   onSearch(event: Event): void {
     this.search = (event.target as HTMLInputElement).value.trim();
+    // Una nueva búsqueda vuelve a la primera página.
+    if (this.lastEvent) {
+      this.lastEvent.first = 0;
+    }
     this.search$.next();
   }
 

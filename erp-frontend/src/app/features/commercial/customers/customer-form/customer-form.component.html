@@ -1,0 +1,72 @@
+<app-page-header [title]="isEdit() ? 'Editar cliente' : 'Nuevo cliente'" subtitle="Datos del cliente" />
+
+@if (loadingData()) {
+  <app-loading-spinner label="Cargando cliente..." />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="max-w-2xl bg-surface-0 rounded-md shadow-card p-6">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="flex flex-col gap-1 sm:col-span-2">
+        <label for="name" class="text-sm font-medium text-surface-700">Nombre *</label>
+        <input
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('name')"
+        />
+        @if (isInvalid('name')) {
+          <small class="text-danger">El nombre es obligatorio (mínimo 2 caracteres).</small>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="taxId" class="text-sm font-medium text-surface-700">CUIT/CUIL</label>
+        <input pInputText id="taxId" type="text" formControlName="taxId" class="w-full" />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="email" class="text-sm font-medium text-surface-700">Email</label>
+        <input
+          pInputText
+          id="email"
+          type="email"
+          formControlName="email"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('email')"
+        />
+        @if (isInvalid('email')) {
+          <small class="text-danger">Ingresá un email válido.</small>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="phone" class="text-sm font-medium text-surface-700">Teléfono</label>
+        <input pInputText id="phone" type="text" formControlName="phone" class="w-full" />
+      </div>
+
+      <div class="flex flex-col gap-1 sm:col-span-2">
+        <label for="address" class="text-sm font-medium text-surface-700">Dirección</label>
+        <input pInputText id="address" type="text" formControlName="address" class="w-full" />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2 mt-6">
+      <p-button
+        type="button"
+        label="Cancelar"
+        severity="secondary"
+        [text]="true"
+        [disabled]="saving()"
+        (onClick)="goBack()"
+      />
+      <p-button
+        type="submit"
+        [label]="isEdit() ? 'Guardar cambios' : 'Crear cliente'"
+        icon="pi pi-check"
+        [loading]="saving()"
+        [disabled]="saving()"
+      />
+    </div>
+  </form>
+}

@@ -1,0 +1,39 @@
+<app-page-header
+  title="Clientes"
+  subtitle="Alta, edición y baja de clientes"
+  actionLabel="Nuevo cliente"
+  (action)="onNew()"
+/>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows()"
+  [total]="total()"
+  [loading]="loading()"
+  searchPlaceholder="Buscar por nombre, CUIT o email..."
+  emptyMessage="No hay clientes para mostrar."
+  (lazyLoad)="onLazyLoad($event)"
+>
+  <ng-template #rowActions let-row>
+    <p-button
+      icon="pi pi-pencil"
+      [text]="true"
+      [rounded]="true"
+      severity="secondary"
+      pTooltip="Editar"
+      tooltipPosition="top"
+      (onClick)="onEdit(row)"
+    />
+    @if (row.isActive) {
+      <p-button
+        icon="pi pi-trash"
+        [text]="true"
+        [rounded]="true"
+        severity="danger"
+        pTooltip="Dar de baja"
+        tooltipPosition="top"
+        (onClick)="onDeactivate(row)"
+      />
+    }
+  </ng-template>
+</app-data-table>

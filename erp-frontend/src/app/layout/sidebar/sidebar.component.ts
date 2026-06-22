@@ -26,7 +26,7 @@ export class SidebarComponent {
   // Solo Dashboard está activo en Fase 0; el resto se habilita en sus fases.
   readonly items: NavItem[] = [
     { label: 'Inicio', icon: 'pi pi-home', route: '/dashboard' },
-    { label: 'Clientes', icon: 'pi pi-users', disabled: true },
+    { label: 'Clientes', icon: 'pi pi-users', route: '/commercial/customers' },
     { label: 'Materiales', icon: 'pi pi-box', disabled: true },
     { label: 'Ventas', icon: 'pi pi-shopping-cart', disabled: true },
   ];

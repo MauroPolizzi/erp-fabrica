@@ -22,6 +22,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
+      {
+        path: 'commercial/customers',
+        loadChildren: () =>
+          import('./features/commercial/customers/customers.routes').then((m) => m.CUSTOMERS_ROUTES),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },
