@@ -27,6 +27,13 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/commercial/customers/customers.routes').then((m) => m.CUSTOMERS_ROUTES),
       },
+      {
+        path: 'inventory/finished-products',
+        loadChildren: () =>
+          import('./features/inventory/finished-products/finished-products.routes').then(
+            (m) => m.FINISHED_PRODUCTS_ROUTES,
+          ),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

@@ -1,0 +1,139 @@
+<app-page-header [title]="isEdit() ? 'Editar material' : 'Nuevo material'" subtitle="Datos del producto terminado" />
+
+@if (loadingData()) {
+  <app-loading-spinner label="Cargando material..." />
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()" class="max-w-2xl bg-surface-0 rounded-md shadow-card p-6">
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="flex flex-col gap-1">
+        <label for="sku" class="text-sm font-medium text-surface-700">SKU *</label>
+        <input
+          pInputText
+          id="sku"
+          type="text"
+          formControlName="sku"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('sku')"
+        />
+        @if (hasSkuConflict()) {
+          <small class="text-danger">El SKU ya está registrado.</small>
+        } @else if (isInvalid('sku')) {
+          <small class="text-danger">El SKU es obligatorio.</small>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="name" class="text-sm font-medium text-surface-700">Nombre *</label>
+        <input
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          class="w-full"
+          [class.ng-invalid]="isInvalid('name')"
+        />
+        @if (isInvalid('name')) {
+          <small class="text-danger">El nombre es obligatorio (mínimo 2 caracteres).</small>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1 sm:col-span-2">
+        <label for="categoryId" class="text-sm font-medium text-surface-700">Categoría *</label>
+        <div class="flex items-center gap-2">
+          <p-dropdown
+            inputId="categoryId"
+            formControlName="categoryId"
+            [options]="categories()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Seleccioná una categoría"
+            styleClass="flex-1"
+            [class.ng-invalid]="isInvalid('categoryId')"
+          />
+          <p-button
+            type="button"
+            icon="pi pi-plus"
+            severity="secondary"
+            [outlined]="true"
+            pTooltip="Nueva categoría"
+            (onClick)="openCategoryDialog()"
+          />
+        </div>
+        @if (isInvalid('categoryId')) {
+          <small class="text-danger">La categoría es obligatoria.</small>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="unit" class="text-sm font-medium text-surface-700">Unidad *</label>
+        <input
+          pInputText
+          id="unit"
+          type="text"
+          formControlName="unit"
+          placeholder="kg, m², unidad..."
+          class="w-full"
+          [class.ng-invalid]="isInvalid('unit')"
+        />
+        @if (isInvalid('unit')) {
+          <small class="text-danger">La unidad es obligatoria.</small>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="salePrice" class="text-sm font-medium text-surface-700">Precio de venta *</label>
+        <p-inputNumber
+          inputId="salePrice"
+          formControlName="salePrice"
+          mode="currency"
+          currency="ARS"
+          locale="es-AR"
+          [min]="0"
+          styleClass="w-full"
+          [inputStyleClass]="'w-full'"
+        />
+        @if (isInvalid('salePrice')) {
+          <small class="text-danger">Ingresá un precio válido (mayor o igual a 0).</small>
+        }
+      </div>
+
+      @if (isEdit()) {
+        <div class="flex flex-col gap-1 sm:col-span-2">
+          <label class="text-sm font-medium text-surface-700">Stock actual</label>
+          <div class="px-3 py-2 rounded-md bg-surface-100 text-surface-700 text-sm">
+            {{ currentStock() ?? '0' }}
+            <span class="text-text-muted">— se modifica únicamente por movimientos de stock.</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="flex justify-end gap-2 mt-6">
+      <p-button
+        type="button"
+        label="Cancelar"
+        severity="secondary"
+        [text]="true"
+        [disabled]="saving()"
+        (onClick)="goBack()"
+      />
+      <p-button
+        type="submit"
+        [label]="isEdit() ? 'Guardar cambios' : 'Crear material'"
+        icon="pi pi-check"
+        [loading]="saving()"
+        [disabled]="saving()"
+      />
+    </div>
+  </form>
+}
+
+<p-dialog
+  [(visible)]="categoryDialogVisible"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '26rem' }"
+  header="Nueva categoría"
+>
+  <app-category-form (created)="onCategoryCreated($event)" (cancelled)="categoryDialogVisible.set(false)" />
+</p-dialog>

@@ -1,0 +1,58 @@
+<app-page-header
+  title="Materiales"
+  subtitle="Productos terminados, stock y categorías"
+  actionLabel="Nuevo material"
+  (action)="onNew()"
+/>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows()"
+  [total]="total()"
+  [loading]="loading()"
+  searchPlaceholder="Buscar por SKU o nombre..."
+  emptyMessage="No hay materiales para mostrar."
+  (lazyLoad)="onLazyLoad($event)"
+>
+  <ng-template #rowActions let-row>
+    @if (row.isActive) {
+      <p-button
+        icon="pi pi-arrow-up"
+        [text]="true"
+        [rounded]="true"
+        severity="success"
+        pTooltip="Cargar stock"
+        tooltipPosition="top"
+        (onClick)="onStock(row)"
+      />
+    }
+    <p-button
+      icon="pi pi-pencil"
+      [text]="true"
+      [rounded]="true"
+      severity="secondary"
+      pTooltip="Editar"
+      tooltipPosition="top"
+      (onClick)="onEdit(row)"
+    />
+    @if (row.isActive) {
+      <p-button
+        icon="pi pi-trash"
+        [text]="true"
+        [rounded]="true"
+        severity="danger"
+        pTooltip="Dar de baja"
+        tooltipPosition="top"
+        (onClick)="onDeactivate(row)"
+      />
+    }
+  </ng-template>
+</app-data-table>
+
+<app-stock-movement-dialog
+  [(visible)]="stockDialogVisible"
+  [productId]="selectedProduct()?.id ?? ''"
+  [productName]="selectedProduct()?.name ?? ''"
+  [currentStock]="selectedProduct()?.currentStock ?? '0'"
+  (saved)="onStockSaved()"
+/>

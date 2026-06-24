@@ -27,7 +27,7 @@ export class SidebarComponent {
   readonly items: NavItem[] = [
     { label: 'Inicio', icon: 'pi pi-home', route: '/dashboard' },
     { label: 'Clientes', icon: 'pi pi-users', route: '/commercial/customers' },
-    { label: 'Materiales', icon: 'pi pi-box', disabled: true },
+    { label: 'Materiales', icon: 'pi pi-box', route: '/inventory/finished-products' },
     { label: 'Ventas', icon: 'pi pi-shopping-cart', disabled: true },
   ];
 }

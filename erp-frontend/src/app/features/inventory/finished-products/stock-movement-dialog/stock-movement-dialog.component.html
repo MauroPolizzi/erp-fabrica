@@ -1,0 +1,65 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [style]="{ width: '30rem' }"
+  [header]="'Cargar stock — ' + productName()"
+  (onShow)="onShow()"
+>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 pt-1">
+    <p class="text-sm text-text-muted m-0">
+      Stock actual: <span class="font-semibold text-surface-900">{{ currentStock() }}</span>
+    </p>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium text-surface-700">Tipo</label>
+      <p-selectButton
+        [options]="typeOptions"
+        formControlName="type"
+        optionLabel="label"
+        optionValue="value"
+        [allowEmpty]="false"
+      />
+      <small class="text-text-muted">«Ingreso» suma al stock; «Ajuste» fija el stock al valor indicado.</small>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="quantity" class="text-sm font-medium text-surface-700">Cantidad *</label>
+      <p-inputNumber
+        inputId="quantity"
+        formControlName="quantity"
+        [min]="0"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        styleClass="w-full"
+        [inputStyleClass]="'w-full'"
+      />
+      @if (isInvalid('quantity')) {
+        <small class="text-danger">Ingresá una cantidad mayor a 0.</small>
+      }
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="reference" class="text-sm font-medium text-surface-700">Referencia</label>
+      <input pInputText id="reference" type="text" formControlName="reference" class="w-full" />
+    </div>
+
+    <div class="flex justify-end gap-2 mt-2">
+      <p-button
+        type="button"
+        label="Cancelar"
+        severity="secondary"
+        [text]="true"
+        [disabled]="saving()"
+        (onClick)="close()"
+      />
+      <p-button
+        type="submit"
+        label="Registrar"
+        icon="pi pi-check"
+        [loading]="saving()"
+        [disabled]="saving()"
+      />
+    </div>
+  </form>
+</p-dialog>
