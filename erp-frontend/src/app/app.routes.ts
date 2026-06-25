@@ -34,6 +34,11 @@ export const routes: Routes = [
             (m) => m.FINISHED_PRODUCTS_ROUTES,
           ),
       },
+      {
+        path: 'commercial/sales',
+        loadChildren: () =>
+          import('./features/commercial/sales/sales.routes').then((m) => m.SALES_ROUTES),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],
   },

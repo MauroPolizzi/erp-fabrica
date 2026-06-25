@@ -28,6 +28,6 @@ export class SidebarComponent {
     { label: 'Inicio', icon: 'pi pi-home', route: '/dashboard' },
     { label: 'Clientes', icon: 'pi pi-users', route: '/commercial/customers' },
     { label: 'Materiales', icon: 'pi pi-box', route: '/inventory/finished-products' },
-    { label: 'Ventas', icon: 'pi pi-shopping-cart', disabled: true },
+    { label: 'Ventas', icon: 'pi pi-shopping-cart', route: '/commercial/sales' },
   ];
 }

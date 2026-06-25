@@ -1,0 +1,28 @@
+<app-page-header
+  title="Ventas"
+  subtitle="Registro y consulta de ventas"
+  actionLabel="Nueva venta"
+  (action)="onNew()"
+/>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows()"
+  [total]="total()"
+  [loading]="loading()"
+  [searchable]="false"
+  emptyMessage="Todavía no hay ventas registradas."
+  (lazyLoad)="onLazyLoad($event)"
+>
+  <ng-template #rowActions let-row>
+    <p-button
+      icon="pi pi-eye"
+      [text]="true"
+      [rounded]="true"
+      severity="secondary"
+      pTooltip="Ver detalle"
+      tooltipPosition="top"
+      (onClick)="onView(row)"
+    />
+  </ng-template>
+</app-data-table>

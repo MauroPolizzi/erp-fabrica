@@ -61,6 +61,13 @@ export interface SaleDetail {
   lineTotal: string;
 }
 
+/** Datos mínimos del cliente embebidos en la venta (saleInclude del backend). */
+export interface SaleCustomer {
+  id: string;
+  name: string;
+  taxId?: string;
+}
+
 export interface Sale {
   id: string;
   customerId: string;
@@ -70,5 +77,6 @@ export interface Sale {
   subtotal: string;
   tax: string;
   total: string;
+  customer?: SaleCustomer;
   details: SaleDetail[];
 }

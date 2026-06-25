@@ -1,0 +1,64 @@
+<app-page-header title="Detalle de venta" subtitle="Venta confirmada">
+  <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="goToList()" />
+</app-page-header>
+
+@if (loading()) {
+  <app-loading-spinner label="Cargando venta..." />
+} @else {
+  @if (sale(); as s) {
+    <div class="flex flex-col gap-6">
+      <div class="bg-surface-0 rounded-md shadow-card p-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <div class="text-xs text-text-muted">Cliente</div>
+          <div class="text-sm font-medium text-surface-900">{{ s.customer?.name ?? '—' }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-text-muted">Fecha</div>
+          <div class="text-sm font-medium text-surface-900">{{ s.soldAt | dateFormat: 'datetime' }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-text-muted">Medio de pago</div>
+          <div class="text-sm font-medium text-surface-900">{{ paymentLabel() }}</div>
+        </div>
+        <div>
+          <div class="text-xs text-text-muted">Estado</div>
+          <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-md bg-surface-100 text-success">
+            {{ s.status === 'CONFIRMED' ? 'Confirmada' : 'Borrador' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="bg-surface-0 rounded-md shadow-card p-6">
+        <h2 class="text-sm font-semibold text-surface-900 mt-0 mb-3">Líneas</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-text-muted text-left border-b border-surface-200">
+                <th class="py-2 font-medium">Material</th>
+                <th class="py-2 font-medium w-32 text-right">Cantidad</th>
+                <th class="py-2 font-medium w-40 text-right">Precio unit.</th>
+                <th class="py-2 font-medium w-40 text-right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (line of detailRows(); track $index) {
+                <tr class="border-b border-surface-100">
+                  <td class="py-2">{{ line.productName }}</td>
+                  <td class="py-2 text-right">{{ line.quantity }}</td>
+                  <td class="py-2 text-right">{{ line.unitPrice | currencyArs }}</td>
+                  <td class="py-2 text-right">{{ line.lineTotal | currencyArs }}</td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" class="py-3 text-right text-sm text-text-muted">Total</td>
+                <td class="py-3 text-right text-lg font-semibold text-surface-900">{{ s.total | currencyArs }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+}
