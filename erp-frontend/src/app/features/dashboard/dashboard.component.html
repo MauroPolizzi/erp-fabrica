@@ -1,16 +1,22 @@
 <app-page-header
   title="Inicio"
   [subtitle]="'Bienvenido' + (userEmail() ? ', ' + userEmail() : '')"
+  actionLabel="Nueva venta"
+  actionIcon="pi pi-shopping-cart"
+  (action)="onNewSale()"
 />
 
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
   @for (step of steps; track step.label) {
-    <div class="bg-surface-0 rounded-md shadow-card p-5 flex items-start gap-3 border border-surface-100">
+    <a
+      [routerLink]="step.route"
+      class="bg-surface-0 rounded-md shadow-card p-5 flex items-start gap-3 border border-surface-100 no-underline transition-colors hover:border-primary hover:bg-surface-50"
+    >
       <i [class]="step.icon" class="text-primary text-2xl"></i>
       <div>
         <h3 class="text-sm font-semibold text-surface-900 m-0">{{ step.label }}</h3>
         <p class="text-xs text-text-muted mt-1 mb-0">{{ step.hint }}</p>
       </div>
-    </div>
+    </a>
   }
 </div>

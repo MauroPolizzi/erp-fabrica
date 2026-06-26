@@ -23,6 +23,7 @@
         severity="success"
         pTooltip="Cargar stock"
         tooltipPosition="top"
+        ariaLabel="Cargar stock"
         (onClick)="onStock(row)"
       />
     }
@@ -33,6 +34,7 @@
       severity="secondary"
       pTooltip="Editar"
       tooltipPosition="top"
+      ariaLabel="Editar material"
       (onClick)="onEdit(row)"
     />
     @if (row.isActive) {
@@ -43,6 +45,7 @@
         severity="danger"
         pTooltip="Dar de baja"
         tooltipPosition="top"
+        ariaLabel="Dar de baja material"
         (onClick)="onDeactivate(row)"
       />
     }

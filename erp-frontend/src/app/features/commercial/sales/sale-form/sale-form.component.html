@@ -1,5 +1,16 @@
 <app-page-header title="Nueva venta" subtitle="Registrá una venta de materiales" />
 
+@if (noCustomers() || noProducts()) {
+  <div class="mb-4 flex items-start gap-2 rounded-md border border-warn bg-surface-100 p-3 text-sm text-surface-700">
+    <i class="pi pi-exclamation-triangle text-warn mt-0.5"></i>
+    <span>
+      @if (noCustomers()) { Necesitás al menos un <strong>cliente activo</strong> para registrar una venta. }
+      @if (noCustomers() && noProducts()) { <br /> }
+      @if (noProducts()) { Necesitás al menos un <strong>material activo</strong> (con stock suficiente) para vender. }
+    </span>
+  </div>
+}
+
 <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-6">
   <div class="bg-surface-0 rounded-md shadow-card p-6 grid gap-4 sm:grid-cols-2">
     <div class="flex flex-col gap-1">
@@ -93,6 +104,7 @@
                   [text]="true"
                   [rounded]="true"
                   severity="danger"
+                  ariaLabel="Quitar línea"
                   [disabled]="items.length === 1"
                   (onClick)="removeLine(i)"
                 />

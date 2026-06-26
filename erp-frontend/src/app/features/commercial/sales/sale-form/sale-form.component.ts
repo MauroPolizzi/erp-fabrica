@@ -50,6 +50,12 @@ export class SaleFormComponent {
   readonly customers = signal<Customer[]>([]);
   readonly products = signal<FinishedProduct[]>([]);
   private readonly productMap = signal(new Map<string, FinishedProduct>());
+  private readonly customersLoaded = signal(false);
+  private readonly productsLoaded = signal(false);
+
+  /** Avisos cuando no hay datos suficientes para registrar una venta. */
+  readonly noCustomers = computed(() => this.customersLoaded() && this.customers().length === 0);
+  readonly noProducts = computed(() => this.productsLoaded() && this.products().length === 0);
 
   readonly paymentMethods = PAYMENT_METHODS;
 
@@ -142,7 +148,10 @@ export class SaleFormComponent {
 
   private loadCustomers(): void {
     this.customerService.list(1, 200).subscribe({
-      next: (res) => this.customers.set(res.data.filter((c) => c.isActive)),
+      next: (res) => {
+        this.customers.set(res.data.filter((c) => c.isActive));
+        this.customersLoaded.set(true);
+      },
     });
   }
 
@@ -152,6 +161,7 @@ export class SaleFormComponent {
         const active = res.data.filter((p) => p.isActive);
         this.products.set(active);
         this.productMap.set(new Map(active.map((p) => [p.id, p])));
+        this.productsLoaded.set(true);
       },
     });
   }

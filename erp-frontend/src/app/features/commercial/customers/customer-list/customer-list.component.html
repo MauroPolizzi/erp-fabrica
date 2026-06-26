@@ -22,6 +22,7 @@
       severity="secondary"
       pTooltip="Editar"
       tooltipPosition="top"
+      ariaLabel="Editar cliente"
       (onClick)="onEdit(row)"
     />
     @if (row.isActive) {
@@ -32,6 +33,7 @@
         severity="danger"
         pTooltip="Dar de baja"
         tooltipPosition="top"
+        ariaLabel="Dar de baja cliente"
         (onClick)="onDeactivate(row)"
       />
     }

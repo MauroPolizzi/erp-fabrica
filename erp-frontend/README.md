@@ -1,59 +1,83 @@
-# ErpFrontend
+# PerliNor ERP — Frontend (Demo de Venta de Materiales)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.2.
+Frontend Angular 19 de la demo funcional de **venta de materiales de punta a punta**:
+**Login → Cliente → Material → Stock → Venta → Consulta**. Consume la API del backend
+`erp-backend` (la lógica de negocio —totales, descuento de stock— es autoridad del servidor).
 
-## Development server
+Stack: **Angular 19** (standalone + Signals), **PrimeNG 17** (tema `lara-light-blue`),
+**Tailwind CSS**, **Day.js**, **decimal.js**.
 
-To start a local development server, run:
+## Requisitos
 
-```bash
-ng serve
-```
+- Node 20.11.0+ y **pnpm** 9.x.
+- **Backend corriendo** en `http://localhost:3000` (la demo no funciona sin él). El backend
+  ya tiene CORS habilitado, por eso no se usa proxy de dev.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Cómo levantar
 
 ```bash
-ng generate --help
+# desde la raíz del workspace
+pnpm install
+pnpm --filter erp-frontend start
+# o, dentro de erp-frontend/
+pnpm start
 ```
 
-## Building
+App en `http://localhost:4200/`. En desarrollo, `environment.development.ts` apunta a
+`http://localhost:3000/api`.
 
-To build the project run:
+## Credenciales (seed del backend)
+
+```
+email:    admin@perlinor.local
+password: admin123
+```
+
+El usuario admin tiene `admin.*`, por lo que pasa todos los chequeos de permisos de la UI.
+
+## Recorrido E2E de la demo
+
+1. **Login** (`/login`) → entra al shell autenticado.
+2. **Clientes** (`/commercial/customers`) → «Nuevo cliente» → completar y guardar.
+3. **Materiales** (`/inventory/finished-products`) → «Nuevo material»; la categoría se elige
+   del combo o se crea al vuelo con «+». El `currentStock` nace en 0.
+4. **Stock** → en la fila del material, acción «Cargar stock» → movimiento `IN` (suma) o
+   `ADJUST` (fija). El stock se refleja al instante en el listado.
+5. **Venta** (`/commercial/sales/new`) → seleccionar cliente y medio de pago, agregar líneas
+   (material + cantidad), ver el **preview** de subtotal/total y «Confirmar venta».
+   - Si falta stock, el backend responde **422** y un toast indica el material afectado
+     (la venta no se registra y no se navega).
+   - Si todo OK, se navega al **detalle** de la venta.
+6. **Consulta** → detalle de la venta (`/commercial/sales/:id`) y, al volver a Materiales,
+   el `currentStock` ya descontado.
+
+## Arquitectura
+
+```
+src/app/
+├── core/          # ApiService, AuthService, NotificationService, guards, interceptores, modelos
+├── shared/        # DataTable, PageHeader, ConfirmDialog, LoadingSpinner; pipes currencyArs / dateFormat
+├── layout/        # MainLayout + Sidebar + Header (shell autenticado)
+└── features/      # auth (login), commercial (customers, sales), inventory (finished-products, categories)
+```
+
+- **Sesión:** JWT con refresh automático (`jwtInterceptor`); la sesión se restaura al recargar
+  (`provideAppInitializer` → `/auth/me`). Rutas protegidas por `authGuard` + `permissionGuard`.
+- **Listados:** paginación server-side reutilizando `DataTableComponent`.
+- **Errores:** `errorInterceptor` → toast (PrimeNG `MessageService`). Validaciones inline en forms.
+- **Montos:** llegan como string (Decimal); se muestran tal cual y se parsean con `decimal.js`
+  solo para el preview de la venta.
+
+## Convención de componentes (obligatoria)
+
+Lógica en `.ts`, template en archivo `.html` vía **`templateUrl`** (prohibido `template:` inline);
+estilos en archivo propio solo si el componente los necesita (el resto es Tailwind).
+Standalone components, Signals para estado local, Reactive Forms.
+
+## Comandos
 
 ```bash
-ng build
+pnpm start        # servidor de desarrollo (http://localhost:4200)
+pnpm build        # build de producción (dist/erp-frontend)
+pnpm test         # tests unitarios (Karma/Jasmine)
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
