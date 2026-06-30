@@ -6,7 +6,10 @@
     "outDir": "./out-tsc/spec",
     "types": [
       "jasmine"
-    ]
+    ],
+    // El build de tests (webpack/JIT) emite __decorate; con module:"preserve" la
+    // importación desde tslib se elide. Inlinamos los helpers solo para los specs.
+    "importHelpers": false
   },
   "include": [
     "src/**/*.spec.ts",
