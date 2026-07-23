@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  # ───────────────────────── Backend (integración contra Postgres) ─────────────────────────
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        # Credenciales y DB que espera erp-backend/.env.test.example -> erp_test ya nace creada.
+        env:
+          POSTGRES_USER: erp_user
+          POSTGRES_PASSWORD: erp_dev_password
+          POSTGRES_DB: erp_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U erp_user -d erp_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Prisma generate
+        run: pnpm --filter erp-backend exec prisma generate
+
+      - name: Preparar .env.test
+        run: cp erp-backend/.env.test.example erp-backend/.env.test
+
+      - name: Migrar y sembrar erp_test
+        run: pnpm --filter erp-backend db:test:setup
+
+      - name: Tests backend (vitest)
+        run: pnpm --filter erp-backend test
+
+  # ───────────────────────── Frontend (Karma headless) ─────────────────────────
+  frontend:
+    name: Frontend tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # ubuntu-latest ya trae Google Chrome; el launcher ChromeHeadlessCI usa --no-sandbox.
+      - name: Tests frontend (ChromeHeadless)
+        run: pnpm --filter erp-frontend test:ci
