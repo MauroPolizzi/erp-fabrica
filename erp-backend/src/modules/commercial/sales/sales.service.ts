@@ -37,10 +37,13 @@ export const salesService = {
    * Crea la venta de forma transaccional (CONTEXT §7):
    *  1. Valida cliente activo.
    *  2. Lee productos DENTRO de la transacción, congela el precio desde salePrice
-   *     y valida stock suficiente por producto (agrega cantidades por si se repite).
-   *  3. Si falta stock → 422 + rollback completo.
+   *     y pre-valida existencia/estado/stock por producto (agrega cantidades por si se repite).
+   *  3. Descuenta stock con un decremento ATÓMICO y condicional por producto
+   *     (UPDATE ... WHERE current_stock >= required). Postgres bloquea la fila, de modo
+   *     que dos ventas concurrentes no pueden sobre-vender: si el stock ya fue consumido,
+   *     count === 0 → 422 + rollback completo.
    *  4. Crea Sale + SaleDetail con totales calculados con decimal.js (sin IVA: total = subtotal).
-   *  5. Descuenta currentStock y genera movimientos OUT con reference = sale.id.
+   *  5. Genera movimientos OUT con reference = sale.id.
    */
   async create(dto: CreateSaleDto, actorId?: string) {
     const sale = await prisma.$transaction(async (tx) => {
@@ -60,7 +63,8 @@ export const salesService = {
       const products = await tx.finishedProduct.findMany({ where: { id: { in: productIds } } });
       const productById = new Map(products.map((p) => [p.id, p]));
 
-      // Validación de existencia, estado y stock suficiente.
+      // Pre-validación de existencia y estado (mensajes claros). El stock leído aquí es
+      // solo indicativo: el guard autoritativo es el decremento atómico de más abajo.
       for (const [productId, required] of requiredByProduct) {
         const product = productById.get(productId);
         if (!product || !product.isActive) {
@@ -70,6 +74,20 @@ export const salesService = {
           throw AppError.unprocessable(
             `Stock insuficiente para ${product.name} (disponible ${product.currentStock}, requerido ${required})`,
           );
+        }
+      }
+
+      // Descuento atómico y condicional por producto: UPDATE ... WHERE current_stock >= required.
+      // Evita oversell por concurrencia (lost update): si otra venta ya consumió el stock,
+      // el WHERE no matchea y count === 0 → 422 + rollback.
+      for (const [productId, required] of requiredByProduct) {
+        const product = productById.get(productId)!;
+        const { count } = await tx.finishedProduct.updateMany({
+          where: { id: productId, currentStock: { gte: required.toFixed(3) } },
+          data: { currentStock: { decrement: required.toFixed(3) } },
+        });
+        if (count === 0) {
+          throw AppError.unprocessable(`Stock insuficiente para ${product.name}`);
         }
       }
 
@@ -108,13 +126,6 @@ export const salesService = {
         await tx.finishedProductMovement.create({
           data: { finishedProductId: item.finishedProductId, type: 'OUT', quantity: item.quantity, reference: created.id },
         });
-      }
-
-      // Descuento de stock una vez por producto (cantidad total agregada ya validada).
-      for (const [productId, required] of requiredByProduct) {
-        const product = productById.get(productId)!;
-        const newStock = new Decimal(product.currentStock.toString()).minus(required);
-        await tx.finishedProduct.update({ where: { id: productId }, data: { currentStock: newStock.toString() } });
       }
 
       return created;

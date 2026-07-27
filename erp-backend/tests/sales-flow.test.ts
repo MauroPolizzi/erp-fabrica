@@ -117,4 +117,24 @@ describe('Flujo de venta E2E', () => {
     expect(await prisma.sale.count({ where: { customerId } })).toBe(salesBefore);
     expect(await prisma.finishedProductMovement.count({ where: { finishedProductId: productId } })).toBe(movementsBefore);
   });
+
+  // Anti-oversell (D1/R1): dos ventas simultáneas que juntas exceden el stock.
+  // Stock en este punto: 95. Dos ventas concurrentes de 50 c/u (total 100 > 95):
+  // el decremento atómico condicional debe confirmar exactamente una y rechazar la otra,
+  // sin que el stock quede negativo. (Sin el fix, ambas leerían 95 y sobre-venderían a -5.)
+  it('ante dos ventas simultáneas que exceden el stock, solo una se confirma', async () => {
+    const buy = () =>
+      request(app)
+        .post('/api/commercial/sales')
+        .set(auth())
+        .send({ customerId, paymentMethod: 'CASH', items: [{ finishedProductId: productId, quantity: 50 }] });
+
+    const [a, b] = await Promise.all([buy(), buy()]);
+
+    const statuses = [a.status, b.status].sort();
+    expect(statuses).toEqual([201, 422]); // exactamente una OK y una rechazada
+
+    const prod = await request(app).get(`/api/inventory/finished-products/${productId}`).set(auth());
+    expect(prod.body.data.currentStock).toBe('45'); // 95 - 50, nunca negativo
+  });
 });
