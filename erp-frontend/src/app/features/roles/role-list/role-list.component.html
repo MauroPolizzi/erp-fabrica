@@ -1,0 +1,30 @@
+<app-page-header title="Roles" subtitle="Roles y permisos del sistema (solo lectura)" />
+
+@if (loading()) {
+  <app-loading-spinner label="Cargando roles..." />
+} @else {
+  <div class="grid gap-4 md:grid-cols-2">
+    @for (role of roles(); track role.id) {
+      <div class="bg-surface-0 rounded-md shadow-card p-5">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="font-semibold text-surface-800">{{ role.name }}</h3>
+          <span class="text-xs text-text-muted">{{ role.permissions.length }} permisos</span>
+        </div>
+        @if (role.description) {
+          <p class="text-sm text-text-muted mb-3">{{ role.description }}</p>
+        }
+        <div class="flex flex-wrap gap-1.5 mt-2">
+          @for (perm of role.permissions; track perm) {
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-100 text-surface-700">
+              {{ perm }}
+            </span>
+          } @empty {
+            <span class="text-sm text-text-muted">Sin permisos asignados.</span>
+          }
+        </div>
+      </div>
+    } @empty {
+      <p class="text-text-muted">No hay roles para mostrar.</p>
+    }
+  </div>
+}

@@ -9,6 +9,7 @@ import { errorHandler, notFoundHandler } from './shared/middlewares/error-handle
 // Rutas de módulos
 import { authRoutes } from './modules/auth/auth.routes';
 import { usersRoutes } from './modules/users/users.routes';
+import { rolesRoutes } from './modules/roles/roles.routes';
 import { employeesRoutes } from './modules/employees/employees.routes';
 import { categoriesRoutes } from './modules/inventory/categories/categories.routes';
 import { rawMaterialsRoutes } from './modules/inventory/raw-materials/raw-materials.routes';
@@ -38,6 +39,7 @@ export function createApp(): Application {
   const api = express.Router();
   api.use('/auth', authRoutes);
   api.use('/users', usersRoutes);
+  api.use('/roles', rolesRoutes);
   api.use('/employees', employeesRoutes);
   api.use('/categories', categoriesRoutes);
   api.use('/inventory/raw-materials', rawMaterialsRoutes);

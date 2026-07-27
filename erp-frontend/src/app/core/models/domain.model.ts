@@ -16,6 +16,23 @@ export interface Customer {
   isActive: boolean;
 }
 
+/** Rol con sus códigos de permiso (aplanados por el backend). Read-only. */
+export interface Role {
+  id: string;
+  name: string;
+  description?: string | null;
+  isActive: boolean;
+  permissions: string[];
+}
+
+export interface User {
+  id: string;
+  email: string;
+  fullName: string;
+  roleId: string;
+  isActive: boolean;
+}
+
 export type CategoryType = 'RAW_MATERIAL' | 'FINISHED_PRODUCT';
 
 export interface Category {

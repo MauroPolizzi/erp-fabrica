@@ -42,26 +42,53 @@ async function main() {
     roles[name] = role.id;
   }
 
-  // Administración recibe admin.* (todos los permisos vía comodín)
-  const adminWildcard = allPermissions.find((p) => p.code === 'admin.*')!;
-  await prisma.rolePermission.upsert({
-    where: { roleId_permissionId: { roleId: roles['Administración'], permissionId: adminWildcard.id } },
-    update: {},
-    create: { roleId: roles['Administración'], permissionId: adminWildcard.id },
-  });
+  // ── Permisos por rol (RBAC — enciende los 5 roles) ──
+  // Administración usa el comodín admin.*; el resto recibe el subconjunto de su área.
+  // Se incluyen permisos de módulos aún no enforçados (production/finance/invoicing/
+  // reports) que ya existen en el catálogo, para no re-sembrar al implementarlos.
+  const ROLE_PERMISSIONS: Record<string, string[]> = {
+    Administración: ['admin.*'],
+    Ventas: ['commercial.read', 'commercial.create', 'commercial.update', 'commercial.delete', 'inventory.read'],
+    Stock: ['inventory.read', 'inventory.create', 'inventory.update', 'inventory.delete'],
+    Producción: [
+      'inventory.read', 'inventory.create', 'inventory.update',
+      'production.read', 'production.create', 'production.update', 'production.delete',
+    ],
+    Finanzas: [
+      'commercial.read', 'inventory.read',
+      'finance.read', 'finance.create', 'finance.update', 'finance.delete',
+      'invoicing.read', 'invoicing.create', 'invoicing.update', 'invoicing.delete',
+      'reports.read',
+    ],
+  };
 
-  // ── Usuario administrador inicial ──
-  const passwordHash = await bcrypt.hash('admin123', 10);
-  await prisma.user.upsert({
-    where: { email: 'admin@perlinor.local' },
-    update: {},
-    create: {
-      email: 'admin@perlinor.local',
-      passwordHash,
-      fullName: 'Administrador',
-      roleId: roles['Administración'],
-    },
-  });
+  const permissionByCode = new Map(allPermissions.map((p) => [p.code, p.id]));
+  for (const [roleName, codes] of Object.entries(ROLE_PERMISSIONS)) {
+    const roleId = roles[roleName];
+    await prisma.rolePermission.createMany({
+      data: codes.map((code) => ({ roleId, permissionId: permissionByCode.get(code)! })),
+      skipDuplicates: true,
+    });
+  }
+
+  // ── Usuarios: admin + un usuario demo por rol para probar el RBAC ──
+  // Password por convención de desarrollo: <slug>123 (p. ej. ventas123).
+  const DEMO_USERS = [
+    { email: 'admin@perlinor.local', fullName: 'Administrador', role: 'Administración', password: 'admin123' },
+    { email: 'ventas@perlinor.local', fullName: 'Usuario Ventas', role: 'Ventas', password: 'ventas123' },
+    { email: 'produccion@perlinor.local', fullName: 'Usuario Producción', role: 'Producción', password: 'produccion123' },
+    { email: 'stock@perlinor.local', fullName: 'Usuario Stock', role: 'Stock', password: 'stock123' },
+    { email: 'finanzas@perlinor.local', fullName: 'Usuario Finanzas', role: 'Finanzas', password: 'finanzas123' },
+  ];
+
+  for (const u of DEMO_USERS) {
+    const passwordHash = await bcrypt.hash(u.password, 10);
+    await prisma.user.upsert({
+      where: { email: u.email },
+      update: {},
+      create: { email: u.email, passwordHash, fullName: u.fullName, roleId: roles[u.role] },
+    });
+  }
 
   // ── Categorías de productos terminados (demo de venta) ──
   const finishedCategories = ['Materiales de construcción', 'Cemento y áridos'];
@@ -74,7 +101,7 @@ async function main() {
   }
 
   console.log(
-    'Seed completado: permisos, roles, usuario admin@perlinor.local (admin123) y categorías de producto terminado.',
+    'Seed completado: permisos, roles con permisos asignados, usuarios (admin + demo por rol) y categorías de PT.',
   );
 }
 

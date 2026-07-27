@@ -1,0 +1,41 @@
+<app-page-header
+  title="Usuarios"
+  subtitle="Alta, edición y baja de usuarios del sistema"
+  actionLabel="Nuevo usuario"
+  (action)="onNew()"
+/>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows()"
+  [total]="total()"
+  [loading]="loading()"
+  searchPlaceholder="Buscar por nombre o email..."
+  emptyMessage="No hay usuarios para mostrar."
+  (lazyLoad)="onLazyLoad($event)"
+>
+  <ng-template #rowActions let-row>
+    <p-button
+      icon="pi pi-pencil"
+      [text]="true"
+      [rounded]="true"
+      severity="secondary"
+      pTooltip="Editar"
+      tooltipPosition="top"
+      ariaLabel="Editar usuario"
+      (onClick)="onEdit(row)"
+    />
+    @if (row.isActive) {
+      <p-button
+        icon="pi pi-trash"
+        [text]="true"
+        [rounded]="true"
+        severity="danger"
+        pTooltip="Dar de baja"
+        tooltipPosition="top"
+        ariaLabel="Dar de baja usuario"
+        (onClick)="onDeactivate(row)"
+      />
+    }
+  </ng-template>
+</app-data-table>
