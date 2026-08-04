@@ -7,6 +7,7 @@ import type { CreateSaleDto } from './sales.dto';
 
 const saleInclude = {
   customer: { select: { id: true, name: true, taxId: true } },
+  createdBy: { select: { id: true, fullName: true } },
   details: {
     select: { id: true, finishedProductId: true, quantity: true, unitPrice: true, lineTotal: true },
   },
@@ -111,6 +112,7 @@ export const salesService = {
       const created = await tx.sale.create({
         data: {
           customerId: dto.customerId,
+          createdById: actorId ?? null,
           status: 'CONFIRMED',
           paymentMethod: dto.paymentMethod,
           subtotal: subtotal.toFixed(2),

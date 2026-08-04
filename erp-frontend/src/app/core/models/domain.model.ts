@@ -85,6 +85,12 @@ export interface SaleCustomer {
   taxId?: string;
 }
 
+/** Usuario que registró la venta (embebido; null en ventas previas a la trazabilidad). */
+export interface SaleCreatedBy {
+  id: string;
+  fullName: string;
+}
+
 export interface Sale {
   id: string;
   customerId: string;
@@ -95,5 +101,6 @@ export interface Sale {
   tax: string;
   total: string;
   customer?: SaleCustomer;
+  createdBy?: SaleCreatedBy | null;
   details: SaleDetail[];
 }

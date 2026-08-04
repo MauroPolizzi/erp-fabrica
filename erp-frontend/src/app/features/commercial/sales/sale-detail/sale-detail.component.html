@@ -26,6 +26,10 @@
             {{ s.status === 'CONFIRMED' ? 'Confirmada' : 'Borrador' }}
           </span>
         </div>
+        <div>
+          <div class="text-xs text-text-muted">Registrada por</div>
+          <div class="text-sm font-medium text-surface-900">{{ s.createdBy?.fullName ?? '—' }}</div>
+        </div>
       </div>
 
       <div class="bg-surface-0 rounded-md shadow-card p-6">
