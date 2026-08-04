@@ -6,7 +6,6 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   FRONTEND_URL: z.string().url().default('http://localhost:4200'),
   DATABASE_URL: z.string().min(1),
-  REDIS_URL: z.string().default('redis://localhost:6379'),
   JWT_ACCESS_SECRET: z.string().min(1),
   JWT_REFRESH_SECRET: z.string().min(1),
   DEFAULT_PAGINATION_LIMIT: z.coerce.number().default(20),

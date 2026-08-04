@@ -14,7 +14,7 @@ erp-fabrica/
 
 | Capa     | Stack principal                                                    |
 |----------|-------------------------------------------------------------------|
-| Backend  | TypeScript, Express, Prisma, PostgreSQL, Redis (BullMQ), Zod, JWT |
+| Backend  | TypeScript, Express, Prisma, PostgreSQL, Zod, JWT                 |
 | Frontend | Angular 19, PrimeNG, Tailwind CSS, RxJS                           |
 | Tooling  | pnpm workspaces, ESLint, Vitest                                   |
 
@@ -23,7 +23,6 @@ erp-fabrica/
 - Node.js 20+
 - pnpm 9+
 - PostgreSQL
-- Redis (para colas con BullMQ)
 
 ## Puesta en marcha
 
@@ -31,7 +30,7 @@ erp-fabrica/
 # 1. Instalar dependencias de todo el workspace
 pnpm install
 
-# 2. Levantar infraestructura local (PostgreSQL 16 + Redis 7 + Adminer)
+# 2. Levantar infraestructura local (PostgreSQL 16 + Adminer)
 docker compose up -d
 
 # 3. Configurar variables de entorno del backend
@@ -57,7 +56,6 @@ pnpm --filter erp-frontend start   # SPA en http://localhost:4200
 | Backend    | 3000   |
 | Frontend   | 4200   |
 | PostgreSQL | 5432   |
-| Redis      | 6379   |
 | Adminer    | 8080   |
 
 ## Notas

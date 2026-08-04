@@ -33,8 +33,6 @@ Sistema ERP de gestión para una fábrica de productos de construcción.
 | Autenticación | JWT + Refresh Tokens (jsonwebtoken 9.0.2) | — |
 | Hash de contraseñas | bcryptjs | 2.4.3 |
 | Validación | Zod | 3.23.8 |
-| Colas / tareas async | BullMQ + ioredis | 5.25.5 / 5.4.1 |
-| Cache / cola | Redis | 7 |
 | Reportes PDF | PDFKit | 0.15.1 |
 | Exportación Excel | ExcelJS | 4.4.0 |
 | Fechas | Day.js | 1.11.13 |
@@ -77,7 +75,7 @@ erp-fabrica/
 ├── pnpm-workspace.yaml         # Declara los paquetes del workspace
 ├── package.json                # Raíz: scripts agregadores (--filter)
 ├── pnpm-lock.yaml              # Lock único compartido
-├── docker-compose.yml          # PostgreSQL + Redis + Adminer
+├── docker-compose.yml          # PostgreSQL + Adminer
 ├── README.md
 ├── erp-backend/                # Paquete del workspace
 │   ├── prisma/
@@ -142,9 +140,6 @@ erp-backend/
 │   │   ├── middlewares/         # error-handler, validate, audit-log, permission
 │   │   ├── utils/               # pagination, response, date, app-error
 │   │   └── types/               # express.d.ts
-│   ├── jobs/
-│   │   ├── queue.ts
-│   │   └── processors/          # report.processor, email.processor
 │   ├── app.ts                   # Configuración Express
 │   └── server.ts                # Entry point
 └── tests/
@@ -255,7 +250,6 @@ NODE_ENV=development
 PORT=3000
 FRONTEND_URL=http://localhost:4200
 DATABASE_URL="postgresql://erp_user:erp_dev_password@localhost:5432/erp_db?schema=public"
-REDIS_URL=redis://localhost:6379
 JWT_ACCESS_SECRET=<secreto>
 JWT_REFRESH_SECRET=<secreto>
 DEFAULT_PAGINATION_LIMIT=20
@@ -272,13 +266,12 @@ MAX_PAGINATION_LIMIT=100
 | BD producción | PostgreSQL 16 |
 | Reverse proxy | Nginx (SSL) |
 | Backups | Dump diario de PostgreSQL a almacenamiento externo (Backblaze B2) |
-| Desarrollo local | Docker Compose (postgres + redis + adminer) |
+| Desarrollo local | Docker Compose (postgres + adminer) |
 
 **Puertos de desarrollo:**
 - Backend: `3000`
 - Frontend: `4200`
 - PostgreSQL: `5432`
-- Redis: `6379`
 - Adminer: `8080`
 - Prisma Studio: `5555`
 
@@ -307,7 +300,7 @@ pnpm test                # Karma/Jasmine
 
 ### Docker
 ```bash
-docker compose up -d     # Levantar postgres + redis
+docker compose up -d     # Levantar postgres + adminer
 docker compose down      # Detener
 ```
 
@@ -340,3 +333,4 @@ docker compose down      # Detener
 - ✅ ORM **Prisma** + **PostgreSQL**.
 - ✅ Estado con **Signals**, sin NgRx.
 - ✅ UI con **PrimeNG + Tailwind CSS**.
+- ✅ Colas async (**BullMQ/Redis**) **diferidas**: se removieron del stack por no usarse; se reintroducirán al implementar reportes async (ver `ROADMAP_POST_MVP.md`, Fase 5).

@@ -6,13 +6,13 @@ Este README cubre el arranque y la **demo de venta de material** de punta a punt
 ## Requisitos
 
 - Node 20.x y pnpm 9.x
-- Docker (PostgreSQL + Redis + Adminer vía `docker-compose.yml`)
+- Docker (PostgreSQL + Adminer vía `docker-compose.yml`)
 
 ## Puesta en marcha
 
 ```bash
 # Desde la raíz del monorepo
-docker compose up -d                         # postgres + redis + adminer
+docker compose up -d                         # postgres + adminer
 pnpm install
 
 # Backend
