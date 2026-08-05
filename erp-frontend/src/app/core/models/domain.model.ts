@@ -63,7 +63,7 @@ export interface FinishedProductMovement {
 }
 
 export type PaymentMethod = 'CASH' | 'TRANSFER' | 'CARD' | 'CHECK' | 'ACCOUNT';
-export type SaleStatus = 'DRAFT' | 'CONFIRMED';
+export type SaleStatus = 'DRAFT' | 'CONFIRMED' | 'CANCELLED';
 
 export interface SaleItemInput {
   finishedProductId: string;

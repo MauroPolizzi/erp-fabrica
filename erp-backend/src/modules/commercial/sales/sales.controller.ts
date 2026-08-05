@@ -30,4 +30,12 @@ export const salesController = {
       next(err);
     }
   },
+
+  async cancel(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.json(ok(await salesService.cancel(String(req.params.id), req.user?.id)));
+    } catch (err) {
+      next(err);
+    }
+  },
 };

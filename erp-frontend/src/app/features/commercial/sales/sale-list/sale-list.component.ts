@@ -46,7 +46,7 @@ export class SaleListComponent {
             ...s,
             customerName: s.customer?.name ?? '—',
             medioPago: paymentMethodLabel(s.paymentMethod),
-            estado: s.status === 'CONFIRMED' ? 'Confirmada' : 'Borrador',
+            estado: s.status === 'CONFIRMED' ? 'Confirmada' : s.status === 'CANCELLED' ? 'Anulada' : 'Borrador',
           })),
         );
         this.total.set(res.meta.total);

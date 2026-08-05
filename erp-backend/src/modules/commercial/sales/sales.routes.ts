@@ -12,3 +12,4 @@ salesRoutes.use(authenticate);
 salesRoutes.get('/', requirePermission('commercial.read'), salesController.list);
 salesRoutes.get('/:id', requirePermission('commercial.read'), salesController.getById);
 salesRoutes.post('/', requirePermission('commercial.create'), validate(createSaleSchema), salesController.create);
+salesRoutes.patch('/:id/cancel', requirePermission('commercial.update'), salesController.cancel);

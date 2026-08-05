@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmationService } from 'primeng/api';
+import { NotificationService } from '../../../../core/services/notification.service';
 import { Sale } from '../../../../core/models/domain.model';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
@@ -29,10 +31,16 @@ export class SaleDetailComponent implements OnInit {
   private readonly productService = inject(FinishedProductService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly confirm = inject(ConfirmationService);
+  private readonly notify = inject(NotificationService);
 
   readonly sale = signal<Sale | null>(null);
   readonly loading = signal(false);
+  readonly cancelling = signal(false);
   private readonly productNames = signal(new Map<string, string>());
+
+  /** Solo se pueden anular ventas confirmadas. */
+  readonly canCancel = computed(() => this.sale()?.status === 'CONFIRMED');
 
   readonly paymentLabel = computed(() => {
     const s = this.sale();
@@ -66,6 +74,26 @@ export class SaleDetailComponent implements OnInit {
 
   goToList(): void {
     this.router.navigate(['/commercial/sales']);
+  }
+
+  onCancel(): void {
+    const s = this.sale();
+    if (!s) return;
+    this.confirm.confirm({
+      header: 'Anular venta',
+      message: '¿Anular esta venta? Se repondrá el stock de los materiales vendidos.',
+      accept: () => {
+        this.cancelling.set(true);
+        this.service.cancel(s.id).subscribe({
+          next: (updated) => {
+            this.sale.set(updated);
+            this.cancelling.set(false);
+            this.notify.success('Venta anulada. Stock repuesto.');
+          },
+          error: () => this.cancelling.set(false),
+        });
+      },
+    });
   }
 
   private loadSale(id: string): void {

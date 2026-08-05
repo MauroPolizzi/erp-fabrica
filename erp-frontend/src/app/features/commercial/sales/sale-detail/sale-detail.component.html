@@ -1,5 +1,17 @@
-<app-page-header title="Detalle de venta" subtitle="Venta confirmada">
-  <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="goToList()" />
+<app-page-header title="Detalle de venta" [subtitle]="sale()?.status === 'CANCELLED' ? 'Venta anulada' : 'Venta confirmada'">
+  <div class="flex gap-2">
+    <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="goToList()" />
+    @if (canCancel()) {
+      <p-button
+        label="Anular venta"
+        icon="pi pi-times"
+        severity="danger"
+        [outlined]="true"
+        [loading]="cancelling()"
+        (onClick)="onCancel()"
+      />
+    }
+  </div>
 </app-page-header>
 
 @if (loading()) {
@@ -22,8 +34,13 @@
         </div>
         <div>
           <div class="text-xs text-text-muted">Estado</div>
-          <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-md bg-surface-100 text-success">
-            {{ s.status === 'CONFIRMED' ? 'Confirmada' : 'Borrador' }}
+          <span
+            class="inline-block text-xs font-semibold px-2 py-0.5 rounded-md bg-surface-100"
+            [class.text-success]="s.status === 'CONFIRMED'"
+            [class.text-danger]="s.status === 'CANCELLED'"
+            [class.text-text-muted]="s.status === 'DRAFT'"
+          >
+            {{ s.status === 'CONFIRMED' ? 'Confirmada' : s.status === 'CANCELLED' ? 'Anulada' : 'Borrador' }}
           </span>
         </div>
         <div>

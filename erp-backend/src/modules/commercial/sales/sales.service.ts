@@ -136,4 +136,61 @@ export const salesService = {
     await writeAuditLog({ userId: actorId, action: 'CREATE', entity: 'Sale', entityId: sale.id, newValues: sale });
     return sale;
   },
+
+  /**
+   * Anula una venta CONFIRMADA de forma transaccional (inverso de create):
+   *  1. Guard atómico de estado (updateMany where status=CONFIRMED). Si count===0 la venta
+   *     no existe como confirmada (ya anulada u otra anulación concurrente ganó) → 422.
+   *  2. Repone stock por producto (increment) y genera movimientos IN de reversión.
+   *  3. Audita el cambio de estado.
+   */
+  async cancel(id: string, actorId?: string) {
+    await prisma.$transaction(async (tx) => {
+      const current = await tx.sale.findUnique({ where: { id }, include: { details: true } });
+      if (!current) throw AppError.notFound('Venta no encontrada');
+      if (current.status !== 'CONFIRMED') {
+        throw AppError.unprocessable('Solo se pueden anular ventas confirmadas');
+      }
+
+      // Guard atómico: solo una anulación concurrente pasa de CONFIRMED a CANCELLED.
+      const { count } = await tx.sale.updateMany({
+        where: { id, status: 'CONFIRMED' },
+        data: { status: 'CANCELLED' },
+      });
+      if (count === 0) throw AppError.unprocessable('La venta ya no está confirmada');
+
+      // Reposición de stock: movimiento IN por línea + increment agregado por producto.
+      const restoreByProduct = new Map<string, Decimal>();
+      for (const line of current.details) {
+        const prev = restoreByProduct.get(line.finishedProductId) ?? new Decimal(0);
+        restoreByProduct.set(line.finishedProductId, prev.plus(line.quantity.toString()));
+
+        await tx.finishedProductMovement.create({
+          data: {
+            finishedProductId: line.finishedProductId,
+            type: 'IN',
+            quantity: line.quantity,
+            reference: `Anulación venta ${id}`,
+          },
+        });
+      }
+
+      for (const [productId, qty] of restoreByProduct) {
+        await tx.finishedProduct.update({
+          where: { id: productId },
+          data: { currentStock: { increment: qty.toFixed(3) } },
+        });
+      }
+    });
+
+    await writeAuditLog({
+      userId: actorId,
+      action: 'UPDATE',
+      entity: 'Sale',
+      entityId: id,
+      oldValues: { status: 'CONFIRMED' },
+      newValues: { status: 'CANCELLED' },
+    });
+    return this.getById(id);
+  },
 };

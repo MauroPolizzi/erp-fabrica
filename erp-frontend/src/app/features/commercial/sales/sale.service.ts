@@ -47,4 +47,9 @@ export class SaleService {
   create(dto: SaleInput): Observable<Sale> {
     return this.api.post<Sale>(this.base, dto);
   }
+
+  /** Anula una venta confirmada; el backend repone el stock. */
+  cancel(id: string): Observable<Sale> {
+    return this.api.patch<Sale>(`${this.base}/${id}/cancel`, {});
+  }
 }

@@ -138,3 +138,40 @@ describe('Flujo de venta E2E', () => {
     expect(prod.body.data.currentStock).toBe('45'); // 95 - 50, nunca negativo
   });
 });
+
+// Anulación (D3/R4): repone el stock e impide anular dos veces. Stock en este punto: 45.
+describe('Anulación de venta', () => {
+  let cancelSaleId: string;
+
+  it('crea una venta para anular (stock 45 → 40)', async () => {
+    const res = await request(app)
+      .post('/api/commercial/sales')
+      .set(auth())
+      .send({ customerId, paymentMethod: 'CASH', items: [{ finishedProductId: productId, quantity: 5 }] });
+    expect(res.status).toBe(201);
+    cancelSaleId = res.body.data.id;
+
+    const prod = await request(app).get(`/api/inventory/finished-products/${productId}`).set(auth());
+    expect(prod.body.data.currentStock).toBe('40');
+  });
+
+  it('anula la venta y repone el stock (40 → 45)', async () => {
+    const res = await request(app)
+      .patch(`/api/commercial/sales/${cancelSaleId}/cancel`)
+      .set(auth())
+      .send({});
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('CANCELLED');
+
+    const prod = await request(app).get(`/api/inventory/finished-products/${productId}`).set(auth());
+    expect(prod.body.data.currentStock).toBe('45'); // stock repuesto
+  });
+
+  it('rechaza anular una venta ya anulada con 422', async () => {
+    const res = await request(app)
+      .patch(`/api/commercial/sales/${cancelSaleId}/cancel`)
+      .set(auth())
+      .send({});
+    expect(res.status).toBe(422);
+  });
+});
