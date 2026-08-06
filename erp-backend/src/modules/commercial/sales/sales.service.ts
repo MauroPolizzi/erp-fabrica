@@ -53,6 +53,12 @@ export const salesService = {
         throw AppError.badRequest('El cliente no existe o está inactivo');
       }
 
+      // La caja de ventas debe existir (la crea el seed). El ingreso se registra abajo.
+      const salesRegister = await tx.cashRegister.findFirst({ where: { type: 'SALES', isActive: true } });
+      if (!salesRegister) {
+        throw AppError.badRequest('No hay una caja de ventas configurada. Ejecutá el seed.');
+      }
+
       // Cantidad total requerida por producto (soporta líneas repetidas del mismo producto).
       const requiredByProduct = new Map<string, Decimal>();
       for (const item of dto.items) {
@@ -130,6 +136,20 @@ export const salesService = {
         });
       }
 
+      // Ingreso en la caja de ventas (movimiento + balance) — vincula venta ↔ finanzas.
+      await tx.cashMovement.create({
+        data: {
+          cashRegisterId: salesRegister.id,
+          amount: total.toFixed(2),
+          description: `Venta a ${customer.name}`,
+          saleId: created.id,
+        },
+      });
+      await tx.cashRegister.update({
+        where: { id: salesRegister.id },
+        data: { balance: { increment: total.toFixed(2) } },
+      });
+
       return created;
     });
 
@@ -146,11 +166,16 @@ export const salesService = {
    */
   async cancel(id: string, actorId?: string) {
     await prisma.$transaction(async (tx) => {
-      const current = await tx.sale.findUnique({ where: { id }, include: { details: true } });
+      const current = await tx.sale.findUnique({
+        where: { id },
+        include: { details: true, cashMovements: true, customer: { select: { name: true } } },
+      });
       if (!current) throw AppError.notFound('Venta no encontrada');
       if (current.status !== 'CONFIRMED') {
         throw AppError.unprocessable('Solo se pueden anular ventas confirmadas');
       }
+      // La anulación es correctiva: no debe depender de que el cliente siga activo.
+      // Solo usamos su nombre (garantizado por la FK) para la descripción del asiento.
 
       // Guard atómico: solo una anulación concurrente pasa de CONFIRMED a CANCELLED.
       const { count } = await tx.sale.updateMany({
@@ -179,6 +204,24 @@ export const salesService = {
         await tx.finishedProduct.update({
           where: { id: productId },
           data: { currentStock: { increment: qty.toFixed(3) } },
+        });
+      }
+
+      // Reversión en caja: un movimiento negativo por cada ingreso de la venta + ajuste de balance.
+      // (Ventas previas a este feature no tienen cashMovements: se anulan sin tocar la caja.)
+      for (const mov of current.cashMovements) {
+        const amount = new Decimal(mov.amount.toString());
+        await tx.cashMovement.create({
+          data: {
+            cashRegisterId: mov.cashRegisterId,
+            amount: amount.negated().toFixed(2),
+            description: `Anulación de venta a ${current.customer.name}`,
+            saleId: id,
+          },
+        });
+        await tx.cashRegister.update({
+          where: { id: mov.cashRegisterId },
+          data: { balance: { decrement: amount.toFixed(2) } },
         });
       }
     });

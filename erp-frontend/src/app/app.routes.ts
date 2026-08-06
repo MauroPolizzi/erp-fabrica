@@ -40,6 +40,11 @@ export const routes: Routes = [
           import('./features/commercial/sales/sales.routes').then((m) => m.SALES_ROUTES),
       },
       {
+        path: 'finance/sales-cash',
+        loadChildren: () =>
+          import('./features/finance/sales-cash/sales-cash.routes').then((m) => m.SALES_CASH_ROUTES),
+      },
+      {
         path: 'users',
         loadChildren: () => import('./features/users/users.routes').then((m) => m.USERS_ROUTES),
       },

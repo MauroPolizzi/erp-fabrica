@@ -104,3 +104,23 @@ export interface Sale {
   createdBy?: SaleCreatedBy | null;
   details: SaleDetail[];
 }
+
+export type CashType = 'SALES' | 'PAYMENTS';
+
+/** Caja (saldo denormalizado mantenido por el backend). Los montos llegan como string. */
+export interface CashRegister {
+  id: string;
+  name: string;
+  type: CashType;
+  balance: string;
+  isActive: boolean;
+}
+
+/** Movimiento de caja: positivo = ingreso, negativo = egreso/reversión. */
+export interface CashMovement {
+  id: string;
+  amount: string;
+  description?: string | null;
+  saleId?: string | null;
+  createdAt: string;
+}

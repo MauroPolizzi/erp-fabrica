@@ -100,6 +100,12 @@ async function main() {
     });
   }
 
+  // ── Caja de ventas (vincula el ingreso de cada venta — ROADMAP §8.7) ──
+  const salesRegister = await prisma.cashRegister.findFirst({ where: { type: 'SALES' } });
+  if (!salesRegister) {
+    await prisma.cashRegister.create({ data: { name: 'Caja de Ventas', type: 'SALES' } });
+  }
+
   console.log(
     'Seed completado: permisos, roles con permisos asignados, usuarios (admin + demo por rol) y categorías de PT.',
   );

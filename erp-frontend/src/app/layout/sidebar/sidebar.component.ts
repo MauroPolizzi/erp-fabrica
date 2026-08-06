@@ -33,6 +33,7 @@ export class SidebarComponent {
     { label: 'Clientes', icon: 'pi pi-users', route: '/commercial/customers', permission: 'commercial.read' },
     { label: 'Materiales', icon: 'pi pi-box', route: '/inventory/finished-products', permission: 'inventory.read' },
     { label: 'Ventas', icon: 'pi pi-shopping-cart', route: '/commercial/sales', permission: 'commercial.read' },
+    { label: 'Caja de ventas', icon: 'pi pi-wallet', route: '/finance/sales-cash', permission: 'finance.read' },
     { label: 'Usuarios', icon: 'pi pi-id-card', route: '/users', permission: 'users.read' },
     { label: 'Roles', icon: 'pi pi-shield', route: '/roles', permission: 'users.read' },
   ];

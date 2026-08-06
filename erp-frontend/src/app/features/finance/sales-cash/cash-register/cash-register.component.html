@@ -1,0 +1,31 @@
+<app-page-header title="Caja de ventas" subtitle="Ingresos por ventas y saldo actual" />
+
+<div class="bg-surface-0 rounded-md shadow-card p-6 mb-6 max-w-xs">
+  <div class="text-xs text-text-muted">Saldo actual</div>
+  <div class="text-3xl font-semibold text-surface-900">{{ (register()?.balance ?? '0') | currencyArs }}</div>
+</div>
+
+<app-data-table
+  [columns]="columns"
+  [rows]="rows()"
+  [total]="total()"
+  [loading]="loading()"
+  [searchable]="false"
+  emptyMessage="Todavía no hay movimientos de caja."
+  (lazyLoad)="onLazyLoad($event)"
+>
+  <ng-template #rowActions let-row>
+    @if (row.saleId) {
+      <p-button
+        icon="pi pi-eye"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        pTooltip="Ver venta"
+        tooltipPosition="top"
+        ariaLabel="Ver venta"
+        (onClick)="onViewSale(row.saleId)"
+      />
+    }
+  </ng-template>
+</app-data-table>

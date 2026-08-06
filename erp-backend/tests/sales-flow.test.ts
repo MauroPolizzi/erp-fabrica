@@ -41,6 +41,7 @@ beforeAll(async () => {
 afterAll(async () => {
   // Limpieza en orden de dependencias (SaleDetail cae por cascade al borrar Sale).
   if (productId) await prisma.finishedProductMovement.deleteMany({ where: { finishedProductId: productId } });
+  if (customerId) await prisma.cashMovement.deleteMany({ where: { sale: { customerId } } });
   if (customerId) await prisma.sale.deleteMany({ where: { customerId } });
   if (productId) await prisma.finishedProduct.deleteMany({ where: { id: productId } });
   if (customerId) await prisma.customer.deleteMany({ where: { id: customerId } });
@@ -139,11 +140,17 @@ describe('Flujo de venta E2E', () => {
   });
 });
 
-// Anulación (D3/R4): repone el stock e impide anular dos veces. Stock en este punto: 45.
-describe('Anulación de venta', () => {
+// Anulación (D3/R4) + caja de ventas (R3): repone stock, revierte la caja e impide
+// anular dos veces. Stock en este punto: 45. Los asserts de caja son relativos al
+// saldo previo (la caja es compartida), así que no dependen de residuo de otras corridas.
+describe('Anulación de venta + caja', () => {
   let cancelSaleId: string;
+  let cajaBefore = 0;
 
-  it('crea una venta para anular (stock 45 → 40)', async () => {
+  it('crea una venta: descuenta stock (45 → 40) y suma a la caja de ventas', async () => {
+    const reg = await prisma.cashRegister.findFirst({ where: { type: 'SALES' } });
+    cajaBefore = Number(reg!.balance);
+
     const res = await request(app)
       .post('/api/commercial/sales')
       .set(auth())
@@ -153,9 +160,12 @@ describe('Anulación de venta', () => {
 
     const prod = await request(app).get(`/api/inventory/finished-products/${productId}`).set(auth());
     expect(prod.body.data.currentStock).toBe('40');
+
+    const regAfter = await prisma.cashRegister.findFirst({ where: { type: 'SALES' } });
+    expect(Number(regAfter!.balance)).toBe(cajaBefore + 42500); // 5 × 8500
   });
 
-  it('anula la venta y repone el stock (40 → 45)', async () => {
+  it('anula la venta: repone el stock (40 → 45) y revierte la caja', async () => {
     const res = await request(app)
       .patch(`/api/commercial/sales/${cancelSaleId}/cancel`)
       .set(auth())
@@ -165,6 +175,9 @@ describe('Anulación de venta', () => {
 
     const prod = await request(app).get(`/api/inventory/finished-products/${productId}`).set(auth());
     expect(prod.body.data.currentStock).toBe('45'); // stock repuesto
+
+    const reg = await prisma.cashRegister.findFirst({ where: { type: 'SALES' } });
+    expect(Number(reg!.balance)).toBe(cajaBefore); // caja vuelve al estado previo
   });
 
   it('rechaza anular una venta ya anulada con 422', async () => {
