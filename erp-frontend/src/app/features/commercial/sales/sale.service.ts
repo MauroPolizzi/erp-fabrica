@@ -1,7 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService, PagedResponse } from '../../../core/services/api.service';
-import { PaymentMethod, Sale } from '../../../core/models/domain.model';
+import { PaymentMethod, Sale, SaleStatus } from '../../../core/models/domain.model';
+
+/** Filtros del listado de ventas (todos opcionales). `search` = nombre del cliente. */
+export interface SaleListFilters {
+  search?: string;
+  status?: SaleStatus;
+  from?: string; // YYYY-MM-DD
+  to?: string; // YYYY-MM-DD
+}
 
 /** Ítem de la venta a enviar al backend (la cantidad va como número). */
 export interface SaleItemInput {
@@ -36,8 +44,16 @@ export class SaleService {
   private readonly api = inject(ApiService);
   private readonly base = '/commercial/sales';
 
-  list(page: number, limit: number): Observable<PagedResponse<Sale>> {
-    return this.api.getPaged<Sale>(this.base, { page, limit });
+  list(page: number, limit: number, filters: SaleListFilters = {}): Observable<PagedResponse<Sale>> {
+    // ApiService omite params vacíos, así que los filtros sin valor no se envían.
+    return this.api.getPaged<Sale>(this.base, {
+      page,
+      limit,
+      search: filters.search ?? '',
+      status: filters.status ?? '',
+      from: filters.from ?? '',
+      to: filters.to ?? '',
+    });
   }
 
   getById(id: string): Observable<Sale> {

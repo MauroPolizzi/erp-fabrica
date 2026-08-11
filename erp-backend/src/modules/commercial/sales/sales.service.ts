@@ -1,9 +1,18 @@
+import { Prisma, type SaleStatus } from '@prisma/client';
 import { Decimal } from 'decimal.js';
 import { prisma } from '../../../config/database';
 import { writeAuditLog } from '../../../shared/middlewares/audit-log';
 import { AppError } from '../../../shared/utils/app-error';
 import { buildMeta, type PaginationParams } from '../../../shared/utils/pagination';
 import type { CreateSaleDto } from './sales.dto';
+
+/** Filtros del listado de ventas (todos opcionales). `search` matchea el nombre del cliente. */
+export interface SalesListFilters {
+  search?: string;
+  status?: SaleStatus;
+  from?: Date;
+  to?: Date;
+}
 
 const saleInclude = {
   customer: { select: { id: true, name: true, taxId: true } },
@@ -14,15 +23,28 @@ const saleInclude = {
 } as const;
 
 export const salesService = {
-  async list(params: PaginationParams) {
+  async list(params: PaginationParams, filters: SalesListFilters = {}) {
+    const where: Prisma.SaleWhereInput = {};
+    if (filters.status) where.status = filters.status;
+    if (filters.search) {
+      where.customer = { name: { contains: filters.search, mode: 'insensitive' } };
+    }
+    if (filters.from || filters.to) {
+      where.soldAt = {
+        ...(filters.from ? { gte: filters.from } : {}),
+        ...(filters.to ? { lte: filters.to } : {}),
+      };
+    }
+
     const [data, total] = await Promise.all([
       prisma.sale.findMany({
+        where,
         include: saleInclude,
         skip: params.skip,
         take: params.limit,
         orderBy: { soldAt: 'desc' },
       }),
-      prisma.sale.count(),
+      prisma.sale.count({ where }),
     ]);
 
     return { data, meta: buildMeta(total, params) };

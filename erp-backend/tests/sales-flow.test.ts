@@ -188,3 +188,36 @@ describe('Anulación de venta + caja', () => {
     expect(res.status).toBe(422);
   });
 });
+
+// Filtros del listado (D7). En este punto el cliente del test tiene ventas
+// CONFIRMED y una CANCELLED; su nombre lleva el suffix único de la corrida.
+describe('Filtros del listado de ventas', () => {
+  it('filtra por estado (status=CANCELLED devuelve solo anuladas)', async () => {
+    const res = await request(app)
+      .get('/api/commercial/sales')
+      .query({ status: 'CANCELLED', limit: 100 })
+      .set(auth());
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    expect(res.body.data.every((s: { status: string }) => s.status === 'CANCELLED')).toBe(true);
+  });
+
+  it('filtra por cliente (search matchea el nombre del cliente)', async () => {
+    const res = await request(app)
+      .get('/api/commercial/sales')
+      .query({ search: `Demo ${suffix}`, limit: 100 })
+      .set(auth());
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    expect(res.body.data.every((s: { customerId: string }) => s.customerId === customerId)).toBe(true);
+  });
+
+  it('un cliente inexistente devuelve lista vacía', async () => {
+    const res = await request(app)
+      .get('/api/commercial/sales')
+      .query({ search: `no-existe-${suffix}`, limit: 100 })
+      .set(auth());
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBe(0);
+  });
+});
