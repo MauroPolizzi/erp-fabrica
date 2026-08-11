@@ -221,3 +221,22 @@ describe('Filtros del listado de ventas', () => {
     expect(res.body.data.length).toBe(0);
   });
 });
+
+// Auditoría de solo lectura: el flujo ya generó asientos (Sale, FinishedProduct, etc.).
+describe('Auditoría (lectura)', () => {
+  it('lista logs filtrando por entidad Sale', async () => {
+    const res = await request(app)
+      .get('/api/audit')
+      .query({ entity: 'Sale', limit: 100 })
+      .set(auth());
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    expect(res.body.data.every((l: { entity: string }) => l.entity === 'Sale')).toBe(true);
+  });
+
+  it('GET /audit/entities incluye Sale', async () => {
+    const res = await request(app).get('/api/audit/entities').set(auth());
+    expect(res.status).toBe(200);
+    expect(res.body.data).toContain('Sale');
+  });
+});

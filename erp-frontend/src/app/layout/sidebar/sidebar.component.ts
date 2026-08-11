@@ -36,6 +36,7 @@ export class SidebarComponent {
     { label: 'Caja de ventas', icon: 'pi pi-wallet', route: '/finance/sales-cash', permission: 'finance.read' },
     { label: 'Usuarios', icon: 'pi pi-id-card', route: '/users', permission: 'users.read' },
     { label: 'Roles', icon: 'pi pi-shield', route: '/roles', permission: 'users.read' },
+    { label: 'Auditoría', icon: 'pi pi-history', route: '/audit', permission: 'audit.read' },
   ];
 
   /** Ítems visibles según los permisos del usuario autenticado. */

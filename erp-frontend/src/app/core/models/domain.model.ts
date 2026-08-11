@@ -124,3 +124,15 @@ export interface CashMovement {
   saleId?: string | null;
   createdAt: string;
 }
+
+/** Asiento de auditoría. `user` es el actor; null si la operación no tuvo actor. */
+export interface AuditLog {
+  id: string;
+  action: string; // CREATE | UPDATE | DELETE
+  entity: string;
+  entityId: string;
+  createdAt: string;
+  user?: { id: string; fullName: string } | null;
+  oldValues?: unknown; // solo en el detalle (GET /audit/:id)
+  newValues?: unknown;
+}
