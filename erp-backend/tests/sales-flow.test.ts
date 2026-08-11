@@ -240,3 +240,19 @@ describe('Auditoría (lectura)', () => {
     expect(res.body.data).toContain('Sale');
   });
 });
+
+// Dashboard: métricas de gestión (home de todos los roles, solo requiere auth).
+describe('Dashboard (métricas)', () => {
+  it('GET /dashboard devuelve los KPIs con la forma esperada', async () => {
+    const res = await request(app).get('/api/dashboard').set(auth());
+    expect(res.status).toBe(200);
+    const d = res.body.data;
+    expect(d.salesMonth).toHaveProperty('total');
+    expect(d.salesMonth).toHaveProperty('count');
+    expect(d.salesToday).toHaveProperty('total');
+    expect(typeof d.activeProducts).toBe('number');
+    expect(typeof d.activeCustomers).toBe('number');
+    expect(Array.isArray(d.topCustomers)).toBe(true);
+    expect(Array.isArray(d.lowStock)).toBe(true);
+  });
+});

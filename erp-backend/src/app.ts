@@ -23,6 +23,7 @@ import { paymentsRoutes } from './modules/finance/payments/payments.routes';
 import { invoicingRoutes } from './modules/finance/invoicing/invoicing.routes';
 import { reportsRoutes } from './modules/reports/reports.routes';
 import { auditRoutes } from './modules/audit/audit.routes';
+import { dashboardRoutes } from './modules/dashboard/dashboard.routes';
 
 export function createApp(): Application {
   const app = express();
@@ -53,6 +54,7 @@ export function createApp(): Application {
   api.use('/finance/invoicing', invoicingRoutes);
   api.use('/reports', reportsRoutes);
   api.use('/audit', auditRoutes);
+  api.use('/dashboard', dashboardRoutes);
 
   app.use('/api', api);
 
