@@ -47,6 +47,7 @@ Sistema ERP de gestión para una fábrica de productos de construcción.
 | Estado reactivo | Signals (nativo de Angular) | — |
 | Estilos | Tailwind CSS | 3.4.14 |
 | Componentes UI | PrimeNG + PrimeIcons | 17.18.11 / 7.0.0 |
+| Gráficos | Chart.js (vía `p-chart` de PrimeNG) | 4.5.1 |
 | Fechas | Day.js | 1.11.13 |
 | Decimales | decimal.js | 10.4.3 |
 | Exportación archivos | file-saver | 2.0.5 |
