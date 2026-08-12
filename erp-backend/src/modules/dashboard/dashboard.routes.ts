@@ -9,3 +9,4 @@ export const dashboardRoutes = Router();
 dashboardRoutes.use(authenticate);
 
 dashboardRoutes.get('/', dashboardController.getSummary);
+dashboardRoutes.get('/sales-series', dashboardController.getSalesSeries);

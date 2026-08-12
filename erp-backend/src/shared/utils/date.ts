@@ -24,21 +24,24 @@ export interface DateRange {
  * Normaliza un rango `YYYY-MM-DD` a [inicio del día, fin del día] en hora del servidor.
  * Es el mismo criterio que ya usan los filtros de ventas/auditoría y el KPI
  * "Ventas de hoy": mantenerlo unificado evita que dos pantallas muestren totales
- * distintos para el mismo día. Los valores ausentes o inválidos caen al default
- * (últimos `defaultDays` días, incluyendo hoy).
+ * distintos para el mismo día.
+ *
+ * Si falta `from`, se retrocede `defaultCount` unidades desde `to` (por defecto,
+ * los últimos 30 días). `defaultUnit` permite defaults por semana o mes.
  */
 export function parseDateRange(
   from: unknown,
   to: unknown,
-  options: { defaultDays?: number } = {},
+  options: { defaultCount?: number; defaultUnit?: 'day' | 'week' | 'month' } = {},
 ): DateRange {
-  const defaultDays = options.defaultDays ?? 30;
+  const count = options.defaultCount ?? 30;
+  const unit = options.defaultUnit ?? 'day';
   const parsedTo = parseDay(to, 'end') ?? dayjs().endOf('day').toDate();
   const parsedFrom =
     parseDay(from, 'start') ??
     dayjs(parsedTo)
-      .subtract(defaultDays - 1, 'day')
-      .startOf('day')
+      .subtract(count - 1, unit)
+      .startOf(unit)
       .toDate();
 
   return { from: parsedFrom, to: parsedTo };

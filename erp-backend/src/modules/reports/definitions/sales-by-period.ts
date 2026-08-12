@@ -34,7 +34,7 @@ const filtersSchema = z
   })
   // Sin rango explícito se reportan los últimos 30 días: la pantalla es útil sin configurar nada.
   .transform((filters) => ({
-    ...parseDateRange(filters.from, filters.to, { defaultDays: DEFAULT_RANGE_DAYS }),
+    ...parseDateRange(filters.from, filters.to, { defaultCount: DEFAULT_RANGE_DAYS }),
     customerId: filters.customerId,
   }));
 
