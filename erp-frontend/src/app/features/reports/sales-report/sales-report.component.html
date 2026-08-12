@@ -1,0 +1,49 @@
+<app-page-header title="Reportes" subtitle="Generación y descarga de reportes en Excel" />
+
+<div class="bg-surface-0 rounded-md shadow-card p-5 max-w-3xl">
+  <h2 class="text-sm font-semibold text-surface-900 mt-0 mb-1">Ventas por período</h2>
+  <p class="text-sm text-text-muted mt-0 mb-4">
+    Una fila por material vendido, con cliente, cantidades y totales. Incluye únicamente
+    ventas confirmadas.
+  </p>
+
+  <div class="flex flex-wrap gap-3 items-end">
+    <div class="flex flex-col gap-1">
+      <label for="fromDate" class="text-xs font-medium text-surface-700">Desde</label>
+      <input pInputText id="fromDate" type="date" [(ngModel)]="from" />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label for="toDate" class="text-xs font-medium text-surface-700">Hasta</label>
+      <input pInputText id="toDate" type="date" [(ngModel)]="to" />
+    </div>
+
+    @if (canFilterByCustomer) {
+      <div class="flex flex-col gap-1">
+        <label for="customerFilter" class="text-xs font-medium text-surface-700">Cliente</label>
+        <p-dropdown
+          inputId="customerFilter"
+          [options]="customerOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="customerId"
+          [filter]="true"
+          filterBy="label"
+          styleClass="w-64"
+        />
+      </div>
+    }
+
+    <p-button
+      label="Descargar Excel"
+      icon="pi pi-file-excel"
+      [loading]="generating()"
+      [disabled]="!!rangeError()"
+      (onClick)="onDownload()"
+    />
+  </div>
+
+  @if (rangeError()) {
+    <p class="text-sm text-danger mt-3 mb-0">{{ rangeError() }}</p>
+  }
+</div>

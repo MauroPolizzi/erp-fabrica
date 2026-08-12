@@ -25,7 +25,8 @@
             "tsConfig": "tsconfig.app.json",
             "allowedCommonJsDependencies": [
               "dayjs",
-              "decimal.js"
+              "decimal.js",
+              "file-saver"
             ],
             "assets": [
               {
