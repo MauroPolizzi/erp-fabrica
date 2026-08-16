@@ -1,0 +1,30 @@
+<app-chart-card
+  title="Ventas por período"
+  [subtitle]="subtitle()"
+  [loading]="loading()"
+  [empty]="!hasData()"
+  [emptyMessage]="emptyMessage()"
+  loadingLabel="Cargando ventas..."
+>
+  <p-selectButton
+    chartActions
+    [options]="periodOptions"
+    optionLabel="label"
+    optionValue="value"
+    [allowEmpty]="false"
+    [(ngModel)]="groupBy"
+    (onChange)="onPeriodChange()"
+    ariaLabel="Agrupación del período"
+  />
+
+  @if (chartData(); as data) {
+    <p-chart
+      class="block h-full"
+      type="bar"
+      height="100%"
+      [data]="data"
+      [options]="chartOptions()"
+      ariaLabel="Gráfico de ventas confirmadas por período"
+    />
+  }
+</app-chart-card>

@@ -9,16 +9,26 @@
     <ng-content select="[chartActions]" />
   </header>
 
-  <!-- Alto fijo: chart.js necesita un contenedor dimensionado (maintainAspectRatio: false). -->
-  <div class="h-72">
+  <!--
+    El contenido se renderiza SIEMPRE dentro de su contenedor con alto fijo: chart.js
+    necesita un contenedor dimensionado, y esconderlo detrás de un @if lo dejaría
+    inicializando sobre un canvas de 0×0. Los estados se superponen encima.
+  -->
+  <div class="h-72 relative">
+    <div class="h-full">
+      <ng-content />
+    </div>
+
     @if (loading()) {
-      <app-loading-spinner [label]="loadingLabel()" />
+      <div class="absolute inset-0 flex items-center justify-center bg-surface-0">
+        <app-loading-spinner [label]="loadingLabel()" />
+      </div>
     } @else if (empty()) {
-      <div class="flex items-center justify-center h-full text-sm text-text-muted">
+      <div
+        class="absolute inset-0 flex items-center justify-center bg-surface-0 text-sm text-text-muted"
+      >
         {{ emptyMessage() }}
       </div>
-    } @else {
-      <ng-content />
     }
   </div>
 </section>

@@ -30,6 +30,23 @@ export interface DashboardSummary {
   lowStock: LowStockProduct[];
 }
 
+export type SalesSeriesGroupBy = 'day' | 'week' | 'month';
+
+/** Punto de la serie. `label` es la fecha de inicio del bucket (YYYY-MM-DD). */
+export interface SalesSeriesPoint {
+  label: string;
+  total: string; // Decimal como string
+  count: number;
+}
+
+/** Serie temporal de ventas confirmadas. Incluye los buckets vacíos (total "0.00"). */
+export interface SalesSeries {
+  groupBy: SalesSeriesGroupBy;
+  from: string;
+  to: string;
+  points: SalesSeriesPoint[];
+}
+
 /** Métricas de gestión para la home (`/api/dashboard`). */
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -37,5 +54,10 @@ export class DashboardService {
 
   getSummary(): Observable<DashboardSummary> {
     return this.api.get<DashboardSummary>('/dashboard');
+  }
+
+  /** El backend resuelve el rango por defecto según la granularidad (30 días / 12 semanas / 12 meses). */
+  getSalesSeries(groupBy: SalesSeriesGroupBy): Observable<SalesSeries> {
+    return this.api.get<SalesSeries>('/dashboard/sales-series', { groupBy });
   }
 }
