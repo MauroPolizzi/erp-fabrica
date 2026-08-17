@@ -58,6 +58,35 @@ export class AuthService {
       );
   }
 
+  /**
+   * Solicita el mail de recuperación. El backend responde el mismo 200 exista o no
+   * el email (no permite enumerar cuentas), así que el mensaje que devuelve es
+   * siempre genérico y es el que se le muestra al usuario.
+   */
+  forgotPassword(email: string): Observable<string> {
+    return this.http
+      .post<ApiResponse<{ message: string }>>(`${this.apiUrl}/auth/forgot-password`, { email })
+      .pipe(map((res) => res.data.message));
+  }
+
+  /** Verifica el token antes de pedir la contraseña nueva, para avisar si el link venció. */
+  validateResetToken(token: string): Observable<boolean> {
+    return this.http
+      .get<ApiResponse<{ valid: boolean }>>(
+        `${this.apiUrl}/auth/reset-password/${encodeURIComponent(token)}/validate`,
+      )
+      .pipe(map((res) => res.data.valid));
+  }
+
+  resetPassword(token: string, password: string): Observable<string> {
+    return this.http
+      .post<ApiResponse<{ message: string }>>(`${this.apiUrl}/auth/reset-password`, {
+        token,
+        password,
+      })
+      .pipe(map((res) => res.data.message));
+  }
+
   hasPermission(permission: string): boolean {
     const user = this._currentUser();
     if (!user) return false;
