@@ -1,4 +1,7 @@
-<app-page-header title="Auditoría" subtitle="Registro de operaciones críticas (solo lectura)" />
+<app-page-header
+  title="Auditoría"
+  subtitle="Registro de operaciones críticas (solo lectura). Muestra el día actual; ampliá las fechas para ver el histórico."
+/>
 
 <div class="bg-surface-0 rounded-md shadow-card p-4 mb-4 flex flex-wrap gap-3 items-end">
   <div class="flex flex-col gap-1">
@@ -37,8 +40,9 @@
     <input pInputText id="toDate" type="date" [ngModel]="toDate" (ngModelChange)="toDate = $event; onFilterChange()" />
   </div>
 
-  @if (entityFilter || actionFilter || fromDate || toDate) {
-    <p-button label="Limpiar" icon="pi pi-filter-slash" severity="secondary" [text]="true" (onClick)="clearFilters()" />
+  <!-- "Limpiar" ya no vacía los filtros: el default es el día actual, no el histórico. -->
+  @if (hasCustomFilters()) {
+    <p-button label="Restablecer" icon="pi pi-filter-slash" severity="secondary" [text]="true" (onClick)="clearFilters()" />
   }
 </div>
 

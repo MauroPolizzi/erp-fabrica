@@ -10,8 +10,9 @@
   [rows]="rows()"
   [total]="total()"
   [loading]="loading()"
+  [searchRequired]="true"
   searchPlaceholder="Buscar por nombre o email..."
-  emptyMessage="No hay usuarios para mostrar."
+  emptyMessage="No se encontraron usuarios para esa búsqueda."
   (lazyLoad)="onLazyLoad($event)"
 >
   <ng-template #rowActions let-row>

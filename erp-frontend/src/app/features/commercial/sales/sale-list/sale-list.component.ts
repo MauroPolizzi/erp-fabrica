@@ -11,6 +11,7 @@ import {
   DataTableColumn,
   DataTableComponent,
   DataTableLazyEvent,
+  MIN_SEARCH_LENGTH,
 } from '../../../../shared/components/data-table/data-table.component';
 import { SaleService, paymentMethodLabel } from '../sale.service';
 
@@ -87,6 +88,15 @@ export class SaleListComponent {
   }
 
   private load(): void {
+    // Los filtros propios llaman acá sin pasar por el data-table, que es el que
+    // normalmente frena la carga. Sin búsqueda válida la grilla queda vacía: cambiar
+    // estado o fechas no debe traer el listado completo de ventas.
+    if (this.lastEvent.search.length < MIN_SEARCH_LENGTH) {
+      this.rows.set([]);
+      this.total.set(0);
+      return;
+    }
+
     this.loading.set(true);
     this.service
       .list(this.lastEvent.page, this.lastEvent.limit, {

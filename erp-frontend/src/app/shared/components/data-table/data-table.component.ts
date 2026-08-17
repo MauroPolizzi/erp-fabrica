@@ -3,8 +3,10 @@ import {
   Component,
   ContentChild,
   TemplateRef,
+  computed,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
@@ -34,8 +36,19 @@ export interface DataTableLazyEvent {
 }
 
 /**
+ * Mínimo de caracteres para disparar una búsqueda. Se exporta porque los listados que
+ * cargan por fuera del data-table (ej. `sale-list`, con sus filtros propios) tienen que
+ * aplicar el mismo umbral.
+ */
+export const MIN_SEARCH_LENGTH = 2;
+
+/**
  * Tabla genérica con paginación server-side (PrimeNG p-table lazy), búsqueda con
  * debounce y formateo por tipo de columna. Emite `lazyLoad` con page/limit/search.
+ *
+ * Con `searchRequired` la grilla arranca sin resultados y no consulta al servidor
+ * hasta que hay al menos `minSearchLength` caracteres: evita traer el listado entero
+ * al entrar a la pantalla.
  *
  * Para una columna de acciones, proyectar un template:
  *   <app-data-table ...>
@@ -69,13 +82,37 @@ export class DataTableComponent<T = Record<string, unknown>> {
   readonly searchPlaceholder = input<string>('Buscar...');
   readonly emptyMessage = input<string>('Sin resultados.');
 
+  /** Si es true, la grilla no consulta nada hasta tener una búsqueda válida. */
+  readonly searchRequired = input<boolean>(false);
+  /** Mínimo de caracteres para disparar la búsqueda (solo con `searchRequired`). */
+  readonly minSearchLength = input<number>(MIN_SEARCH_LENGTH);
+  /** Texto guía del estado inicial. Vacío = se deriva de `minSearchLength`. */
+  readonly promptMessage = input<string>('');
+
   readonly lazyLoad = output<DataTableLazyEvent>();
 
   @ContentChild('rowActions') rowActions?: TemplateRef<unknown>;
 
-  private search = '';
+  private readonly search = signal('');
   private lastEvent?: TableLazyLoadEvent;
   private readonly search$ = new Subject<void>();
+
+  /** Estado inicial: hace falta una búsqueda y todavía no la hay (o es muy corta). */
+  readonly awaitingSearch = computed(
+    () => this.searchRequired() && this.search().length < this.minSearchLength(),
+  );
+
+  /**
+   * Lo que se muestra. En estado inicial va vacío sin tocar `rows()`: así, al borrar
+   * el campo de búsqueda, no quedan visibles los resultados de la búsqueda anterior
+   * aunque el padre todavía los tenga en su signal.
+   */
+  readonly displayRows = computed<T[]>(() => (this.awaitingSearch() ? [] : this.rows()));
+
+  /** El mínimo es configurable, así que el texto no lo hardcodea. */
+  readonly guideMessage = computed(
+    () => this.promptMessage() || `Ingresá al menos ${this.minSearchLength()} caracteres para buscar.`,
+  );
 
   constructor() {
     this.search$.pipe(debounceTime(300), takeUntilDestroyed()).subscribe(() => this.emit());
@@ -91,7 +128,7 @@ export class DataTableComponent<T = Record<string, unknown>> {
   }
 
   onSearch(event: Event): void {
-    this.search = (event.target as HTMLInputElement).value.trim();
+    this.search.set((event.target as HTMLInputElement).value.trim());
     // Una nueva búsqueda vuelve a la primera página.
     if (this.lastEvent) {
       this.lastEvent.first = 0;
@@ -100,6 +137,10 @@ export class DataTableComponent<T = Record<string, unknown>> {
   }
 
   private emit(): void {
+    // Corta acá el `onLazyLoad` que p-table dispara al montarse: sin búsqueda válida
+    // no se pide nada al servidor.
+    if (this.awaitingSearch()) return;
+
     const first = this.lastEvent?.first ?? 0;
     const limit = (this.lastEvent?.rows as number) || this.rowsPerPage();
     const sortField = (this.lastEvent?.sortField as string) || undefined;
@@ -107,7 +148,7 @@ export class DataTableComponent<T = Record<string, unknown>> {
     this.lazyLoad.emit({
       page: Math.floor(first / limit) + 1,
       limit,
-      search: this.search,
+      search: this.search(),
       sortField,
       sortOrder,
     });

@@ -57,8 +57,9 @@
   [rows]="rows()"
   [total]="total()"
   [loading]="loading()"
+  [searchRequired]="true"
   searchPlaceholder="Buscar por cliente..."
-  emptyMessage="No hay ventas para los filtros aplicados."
+  emptyMessage="No se encontraron ventas para esa búsqueda y los filtros aplicados."
   (lazyLoad)="onLazyLoad($event)"
 >
   <ng-template #rowActions let-row>
