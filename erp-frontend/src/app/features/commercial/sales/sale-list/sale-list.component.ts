@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import dayjs from 'dayjs';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,6 +17,8 @@ import {
 import { SaleService, paymentMethodLabel } from '../sale.service';
 
 type SaleRow = Sale & { customerName: string; medioPago: string; estado: string };
+
+const today = (): string => dayjs().format('YYYY-MM-DD');
 
 /** Listado paginado de ventas con filtros por cliente (search), estado y rango de fechas. */
 @Component({
@@ -43,8 +46,8 @@ export class SaleListComponent {
 
   // Filtros propios del listado (el cliente se busca con el search del data-table).
   statusFilter: SaleStatus | '' = '';
-  fromDate = '';
-  toDate = '';
+  fromDate = today();
+  toDate = today();
 
   private lastEvent: DataTableLazyEvent = { page: 1, limit: 10, search: '' };
 
@@ -74,8 +77,8 @@ export class SaleListComponent {
 
   clearFilters(): void {
     this.statusFilter = '';
-    this.fromDate = '';
-    this.toDate = '';
+    this.fromDate = today();
+    this.toDate = today();
     this.load();
   }
 

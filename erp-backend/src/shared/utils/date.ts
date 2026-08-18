@@ -47,8 +47,14 @@ export function parseDateRange(
   return { from: parsedFrom, to: parsedTo };
 }
 
-/** Parsea una fecha al inicio/fin de su día; devuelve undefined si no es válida. */
-function parseDay(value: unknown, edge: 'start' | 'end'): Date | undefined {
+/**
+ * Parsea una fecha al inicio/fin de su día; devuelve undefined si no es válida.
+ *
+ * Es el parser de los filtros `from`/`to` de todos los listados (ventas, auditoría,
+ * caja): mantenerlo en un solo lugar evita que dos pantallas interpreten distinto el
+ * mismo rango de fechas.
+ */
+export function parseDay(value: unknown, edge: 'start' | 'end'): Date | undefined {
   if (typeof value !== 'string' || !value.trim()) return undefined;
   const parsed = dayjs(value);
   if (!parsed.isValid()) return undefined;

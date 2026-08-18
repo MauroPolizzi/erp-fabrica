@@ -16,7 +16,17 @@ export class SalesCashService {
     return this.api.get<CashRegister>(this.base);
   }
 
-  listMovements(page: number, limit: number): Observable<PagedResponse<CashMovement>> {
-    return this.api.getPaged<CashMovement>(`${this.base}/movements`, { page, limit });
+  /** `from`/`to` en formato YYYY-MM-DD; acotan el listado, no el saldo de la caja. */
+  listMovements(
+    page: number,
+    limit: number,
+    filters: { from?: string; to?: string } = {},
+  ): Observable<PagedResponse<CashMovement>> {
+    return this.api.getPaged<CashMovement>(`${this.base}/movements`, {
+      page,
+      limit,
+      from: filters.from ?? '',
+      to: filters.to ?? '',
+    });
   }
 }

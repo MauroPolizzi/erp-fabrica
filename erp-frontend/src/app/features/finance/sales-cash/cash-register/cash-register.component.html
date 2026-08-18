@@ -1,8 +1,29 @@
-<app-page-header title="Caja de ventas" subtitle="Ingresos por ventas y saldo actual" />
+<app-page-header
+  title="Caja de ventas"
+  subtitle="Ingresos por ventas y saldo actual. Muestra el día actual; ampliá las fechas para ver el histórico."
+/>
 
 <div class="bg-surface-0 rounded-md shadow-card p-6 mb-6 max-w-xs">
   <div class="text-xs text-text-muted">Saldo actual</div>
   <div class="text-3xl font-semibold text-surface-900">{{ (register()?.balance ?? '0') | currencyArs }}</div>
+  <!-- El saldo es el acumulado de la caja: no lo afecta el rango de fechas del listado. -->
+  <div class="text-xs text-text-muted mt-1">Acumulado de la caja, no del período filtrado.</div>
+</div>
+
+<div class="bg-surface-0 rounded-md shadow-card p-4 mb-4 flex flex-wrap gap-3 items-end">
+  <div class="flex flex-col gap-1">
+    <label for="fromDate" class="text-xs font-medium text-surface-700">Desde</label>
+    <input pInputText id="fromDate" type="date" [ngModel]="fromDate" (ngModelChange)="fromDate = $event; onFilterChange()" />
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <label for="toDate" class="text-xs font-medium text-surface-700">Hasta</label>
+    <input pInputText id="toDate" type="date" [ngModel]="toDate" (ngModelChange)="toDate = $event; onFilterChange()" />
+  </div>
+
+  @if (hasCustomFilters()) {
+    <p-button label="Restablecer" icon="pi pi-filter-slash" severity="secondary" [text]="true" (onClick)="clearFilters()" />
+  }
 </div>
 
 <app-data-table
@@ -11,7 +32,7 @@
   [total]="total()"
   [loading]="loading()"
   [searchable]="false"
-  emptyMessage="Todavía no hay movimientos de caja."
+  emptyMessage="No hubo movimientos de caja en el período seleccionado."
   (lazyLoad)="onLazyLoad($event)"
 >
   <ng-template #rowActions let-row>

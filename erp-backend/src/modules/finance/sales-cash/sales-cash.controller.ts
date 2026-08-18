@@ -1,7 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
+import { parseDay } from '../../../shared/utils/date';
 import { ok } from '../../../shared/utils/response';
 import { getPagination } from '../../../shared/utils/pagination';
-import { salesCashService } from './sales-cash.service';
+import { salesCashService, type CashMovementFilters } from './sales-cash.service';
 
 export const salesCashController = {
   async getRegister(_req: Request, res: Response, next: NextFunction) {
@@ -15,7 +16,11 @@ export const salesCashController = {
   async listMovements(req: Request, res: Response, next: NextFunction) {
     try {
       const pagination = getPagination(req.query);
-      const { data, meta } = await salesCashService.listMovements(pagination);
+      const filters: CashMovementFilters = {
+        from: parseDay(req.query.from, 'start'),
+        to: parseDay(req.query.to, 'end'),
+      };
+      const { data, meta } = await salesCashService.listMovements(pagination, filters);
       res.json(ok(data, meta));
     } catch (err) {
       next(err);

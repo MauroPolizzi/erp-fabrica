@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { SaleStatus } from '@prisma/client';
-import dayjs from 'dayjs';
+import { parseDay } from '../../../shared/utils/date';
 import { getPagination } from '../../../shared/utils/pagination';
 import { ok } from '../../../shared/utils/response';
 import { salesService, type SalesListFilters } from './sales.service';
@@ -12,14 +12,6 @@ function parseSaleStatus(value: unknown): SaleStatus | undefined {
     : undefined;
 }
 
-/** Parsea una fecha YYYY-MM-DD al inicio/fin del día; ignora valores inválidos. */
-function parseDate(value: unknown, edge: 'start' | 'end'): Date | undefined {
-  if (typeof value !== 'string' || !value.trim()) return undefined;
-  const d = dayjs(value);
-  if (!d.isValid()) return undefined;
-  return (edge === 'start' ? d.startOf('day') : d.endOf('day')).toDate();
-}
-
 export const salesController = {
   async list(req: Request, res: Response, next: NextFunction) {
     try {
@@ -28,8 +20,8 @@ export const salesController = {
       const filters: SalesListFilters = {
         search: typeof search === 'string' && search.trim() ? search.trim() : undefined,
         status: parseSaleStatus(req.query.status),
-        from: parseDate(req.query.from, 'start'),
-        to: parseDate(req.query.to, 'end'),
+        from: parseDay(req.query.from, 'start'),
+        to: parseDay(req.query.to, 'end'),
       };
       const { data, meta } = await salesService.list(pagination, filters);
       res.json(ok(data, meta));
