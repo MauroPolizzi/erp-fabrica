@@ -1,6 +1,6 @@
 <app-page-header
   title="Ventas"
-  subtitle="Registro y consulta de ventas"
+  subtitle="Registro y consulta de ventas. Muestra el día actual; ampliá las fechas para ver el histórico."
   actionLabel="Nueva venta"
   (action)="onNew()"
 />
@@ -13,8 +13,8 @@
       [options]="statusOptions"
       optionLabel="label"
       optionValue="value"
-      [ngModel]="statusFilter"
-      (ngModelChange)="statusFilter = $event; onFilterChange()"
+      [(ngModel)]="statusFilter"
+      (onChange)="onFilterChange()"
       styleClass="w-56"
     />
   </div>
@@ -41,9 +41,10 @@
     />
   </div>
 
-  @if (statusFilter || fromDate || toDate) {
+  <!-- El default es el día actual, no "sin filtros": por eso no dice "Limpiar". -->
+  @if (hasCustomFilters()) {
     <p-button
-      label="Limpiar"
+      label="Restablecer"
       icon="pi pi-filter-slash"
       severity="secondary"
       [text]="true"
@@ -57,9 +58,8 @@
   [rows]="rows()"
   [total]="total()"
   [loading]="loading()"
-  [searchRequired]="true"
   searchPlaceholder="Buscar por cliente..."
-  emptyMessage="No se encontraron ventas para esa búsqueda y los filtros aplicados."
+  emptyMessage="No hay ventas para el período y los filtros seleccionados."
   (lazyLoad)="onLazyLoad($event)"
 >
   <ng-template #rowActions let-row>

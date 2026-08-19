@@ -3,8 +3,9 @@
 > Basado en auditoría del código real de `erp-backend` y `erp-frontend`.
 > Fecha: 2026-08-14. Base: rama `dev`, commit `5dbeec6` (MVP + reportería/gráficos estables).
 >
-> **Estado (2026-08-17):** Feature 1 implementada y verificada (§2.4). Feature 2 pendiente,
-> con las decisiones de §5 ya cerradas.
+> **Estado (2026-08-18):** ambas features implementadas y verificadas. Feature 1 en §2.4,
+> Feature 2 en §3.5. Decisiones de §5 cerradas.
+> Cobertura resultante: backend 38 tests (Vitest), frontend 30 (Karma).
 
 ---
 
@@ -147,14 +148,19 @@ Hay **dos comportamientos iniciales distintos**, según la grilla tenga o no bú
 | Clientes | `customer-list` | Sí (nombre/CUIT/email) | **Sin resultados** hasta buscar |
 | Materiales | `product-list` | Sí (SKU/nombre) | **Sin resultados** hasta buscar |
 | Usuarios | `user-list` | Sí (nombre/email) | **Sin resultados** hasta buscar |
-| Ventas | `sale-list` | Sí (cliente) + filtros propios | **Sin resultados** hasta buscar (con guarda extra, §3.4) |
+| Ventas | `sale-list` | Sí (cliente) + filtros propios | **Ventas del día actual** (ver nota) |
 | Auditoría | `audit-list` | `[searchable]="false"`, filtra por entidad/acción/fecha | **Registros del día actual** |
 | Caja de ventas | `cash-register` | `[searchable]="false"`, sin ningún filtro | **Movimientos del día actual** |
 | Roles | `role-list` | No es grilla (tarjetas, dataset fijo y chico) | Sin cambios |
 
-El criterio detrás de la división: donde hay texto que buscar, el usuario dice qué quiere ver;
-donde no lo hay, la grilla no puede quedar vacía y sin salida, así que arranca acotada al día
-en curso en lugar de traer el histórico completo.
+El criterio detrás de la división: en los maestros (clientes, materiales, usuarios) el usuario
+llega buscando un registro puntual, así que dice primero qué quiere ver; en las pantallas
+operativas no puede quedar vacía y sin salida, así que arrancan acotadas al día en curso.
+
+> **Nota — Ventas (decisión de negocio, 2026-08-18).** Originalmente iba en el grupo de
+> búsqueda previa. Se cambió: la operación diaria necesita ver las ventas del día al entrar,
+> sin tipear nada. Ventas conserva su buscador por cliente, pero **sin mínimo de caracteres**
+> y como filtro adicional sobre el rango de fechas, no como condición para mostrar contenido.
 
 ### 3.2 Decisión de diseño: la lógica vive en `data-table`
 
@@ -208,30 +214,50 @@ que ya había identificado `PLAN_REPORTES_Y_GRAFICOS.md` §1.2.
 > El saldo que muestra la tarjeta superior es el **saldo actual de la caja**, no el del día:
 > lo devuelve `getRegister()` y **no** se toca. Solo se acota el listado de movimientos.
 
-### 3.4 Ajuste puntual en `sale-list`
+### 3.4 `sale-list` — obsoleto
 
-`sale-list.component.ts:70` llama a `load()` desde `onFilterChange()`/`clearFilters()`, sin pasar por el data-table. Con búsqueda obligatoria hay que guardar esa vía:
-
-```ts
-private load(): void {
-  if (this.lastEvent.search.length < 2) { this.rows.set([]); this.total.set(0); return; }
-  ...
-}
-```
-
-Es el único componente con búsqueda que necesita TypeScript nuevo.
+Esta sección describía una guarda de búsqueda mínima en `load()`, necesaria mientras Ventas
+estaba en el grupo de búsqueda previa. **La decisión de negocio del 2026-08-18 la dejó sin
+efecto**: Ventas carga el día actual al entrar, así que la guarda se removió y el componente
+quedó alineado con auditoría y caja (`fromDate`/`toDate` en hoy, `hasCustomFilters()`,
+botón "Restablecer").
 
 ### 3.5 Fases
 
-| Fase | Alcance | Depende de |
-|---|---|---|
-| **F2.1** | `data-table.component.ts/.html`: inputs `searchRequired`/`minSearchLength`/`promptMessage`, `search` como signal, gating de `emit()`, render condicional, campo de búsqueda agrandado | — |
-| **F2.2** | Activar `[searchRequired]="true"` en clientes, materiales, usuarios y ventas + guarda de `load()` en `sale-list` | F2.1 |
-| **F2.3** | Auditoría al día actual (solo inicializar `fromDate`/`toDate`) | — |
-| **F2.4** | Caja de ventas al día actual: `parseDate` a `shared/utils/date.ts`, filtros `from`/`to` en service + controller, barra de fechas en el componente | — |
-| **F2.5** | Spec de Karma para `data-table` (no emite sin búsqueda / no emite con 1 carácter / emite con 2 / limpia al vaciar) — hoy solo existe `app.component.spec.ts` | F2.1 |
+| Fase | Alcance | Depende de | Estado |
+|---|---|---|---|
+| **F2.1** | `data-table.component.ts/.html`: inputs `searchRequired`/`minSearchLength`/`promptMessage`, `search` como signal, gating de `emit()`, render condicional, campo de búsqueda agrandado | — | ✅ |
+| **F2.2** | Activar `[searchRequired]="true"` en clientes, materiales, usuarios y ventas + guarda de `load()` en `sale-list` | F2.1 | ✅ |
+| **F2.3** | Auditoría al día actual (solo inicializar `fromDate`/`toDate`) | — | ✅ |
+| **F2.4** | Caja de ventas al día actual: `parseDate` a `shared/utils/date.ts`, filtros `from`/`to` en service + controller, barra de fechas en el componente | — | ✅ |
+| **F2.5** | Specs: `data-table`, grillas sin carga inicial, auditoría, caja (Karma) + filtro de fechas de caja (Vitest) | F2.1–F2.4 | ✅ |
 
 F2.3 y F2.4 son independientes entre sí y de F2.1/F2.2: se pueden hacer en cualquier orden.
+
+**Desvíos respecto de lo planificado**
+
+- El mínimo de búsqueda se exporta como `MIN_SEARCH_LENGTH` desde `data-table.component.ts`
+  en lugar de escribirse a mano en `sale-list`: así el umbral vive en un solo lugar.
+- Auditoría y caja necesitaron un `hasCustomFilters()` que el plan no preveía. Con las
+  fechas siempre cargadas, la condición original del botón "Limpiar" (`fromDate || toDate`)
+  quedaba siempre en verdadero. De paso el botón pasó a llamarse "Restablecer", porque ya
+  no vacía los filtros: vuelve al día actual.
+
+**Bug preexistente — CORREGIDO (2026-08-18)**
+
+Auditoría disparaba **3 requests idénticas al montarse** en vez de 1 (y `sale-list` lo mismo
+con su dropdown de estado). Verificado contra el código original: no lo introdujo esta feature.
+
+*Causa:* los `p-dropdown` estaban cableados como `(ngModelChange)="filtro = $event; onFilterChange()"`,
+y `ngModelChange` también emite cuando `NgModel` inicializa el valor del control — no solo
+ante una selección del usuario.
+
+*Corrección:* los 3 dropdowns (entidad y acción en auditoría, estado en ventas) pasaron a
+`[(ngModel)]` + `(onChange)`. El `onChange` de PrimeNG solo emite ante una selección real.
+Los inputs `type="date"` nativos no tenían el problema y quedaron como estaban.
+
+Los specs de auditoría y ventas ahora afirman **conteo exacto** de requests, más un caso
+explícito de "un ciclo de change detection no dispara cargas extra".
 
 ### 3.6 Criterios de aceptación
 

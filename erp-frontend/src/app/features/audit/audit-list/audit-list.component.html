@@ -11,8 +11,8 @@
       [options]="entityOptions()"
       optionLabel="label"
       optionValue="value"
-      [ngModel]="entityFilter"
-      (ngModelChange)="entityFilter = $event; onFilterChange()"
+      [(ngModel)]="entityFilter"
+      (onChange)="onFilterChange()"
       styleClass="w-56"
     />
   </div>
@@ -24,8 +24,8 @@
       [options]="actionOptions"
       optionLabel="label"
       optionValue="value"
-      [ngModel]="actionFilter"
-      (ngModelChange)="actionFilter = $event; onFilterChange()"
+      [(ngModel)]="actionFilter"
+      (onChange)="onFilterChange()"
       styleClass="w-52"
     />
   </div>

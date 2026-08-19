@@ -12,15 +12,25 @@ import {
   DataTableColumn,
   DataTableComponent,
   DataTableLazyEvent,
-  MIN_SEARCH_LENGTH,
 } from '../../../../shared/components/data-table/data-table.component';
 import { SaleService, paymentMethodLabel } from '../sale.service';
 
 type SaleRow = Sale & { customerName: string; medioPago: string; estado: string };
 
+/**
+ * Fecha de hoy en el formato que esperan los inputs date y el backend.
+ * Es función y no constante de módulo para que una sesión abierta de un día para el
+ * otro no siga anclada a la fecha de ayer.
+ */
 const today = (): string => dayjs().format('YYYY-MM-DD');
 
-/** Listado paginado de ventas con filtros por cliente (search), estado y rango de fechas. */
+/**
+ * Listado paginado de ventas con filtros por cliente (search), estado y rango de fechas.
+ *
+ * A diferencia de las grillas de clientes/materiales/usuarios, **no** exige buscar para
+ * mostrar contenido: la operación diaria necesita ver las ventas del día al entrar, así
+ * que arranca acotada a hoy y la búsqueda por cliente es un filtro adicional.
+ */
 @Component({
   selector: 'app-sale-list',
   standalone: true,
@@ -75,11 +85,17 @@ export class SaleListComponent {
     this.load();
   }
 
+  /** Vuelve al estado por defecto: ventas del día actual, sin filtro de estado. */
   clearFilters(): void {
     this.statusFilter = '';
     this.fromDate = today();
     this.toDate = today();
     this.load();
+  }
+
+  /** Con el default (hoy, todos los estados) no tiene sentido ofrecer "Restablecer". */
+  hasCustomFilters(): boolean {
+    return this.statusFilter !== '' || this.fromDate !== today() || this.toDate !== today();
   }
 
   onNew(): void {
@@ -91,15 +107,6 @@ export class SaleListComponent {
   }
 
   private load(): void {
-    // Los filtros propios llaman acá sin pasar por el data-table, que es el que
-    // normalmente frena la carga. Sin búsqueda válida la grilla queda vacía: cambiar
-    // estado o fechas no debe traer el listado completo de ventas.
-    if (this.lastEvent.search.length < MIN_SEARCH_LENGTH) {
-      this.rows.set([]);
-      this.total.set(0);
-      return;
-    }
-
     this.loading.set(true);
     this.service
       .list(this.lastEvent.page, this.lastEvent.limit, {
