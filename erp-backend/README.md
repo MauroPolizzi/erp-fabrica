@@ -65,6 +65,16 @@ pnpm --filter erp-backend db:seed    # re-siembra (idempotente)
 pnpm --filter erp-backend lint       # ESLint
 ```
 
+## Despliegue: la carpeta `assets/`
+
+`pnpm build` es `tsc` a secas y **solo emite `.js`**: no copia archivos que no sean TypeScript.
+El logo de los reportes Excel vive en `assets/logo.png`, fuera de `dist/`, y se resuelve
+relativo a `__dirname` (`src/` y `dist/` están a la misma profundidad, así que la ruta sirve
+en desarrollo y en producción).
+
+> **Al desplegar hay que copiar `assets/` junto a `dist/`.** Si falta, los reportes se
+> generan igual pero **sin logo**, dejando un `warn` en el log — no falla la descarga.
+
 ## Tests
 
 `tests/sales-flow.test.ts` ejecuta el flujo E2E (login OK/KO, alta de cliente, alta de material,

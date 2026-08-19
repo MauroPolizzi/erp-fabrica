@@ -1,5 +1,8 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { Writable } from 'node:stream';
 import { Workbook, type Worksheet } from 'exceljs';
+import { logger } from '../../shared/utils/logger';
 import type { ColumnFormat, ReportPayload } from './report-types';
 
 /**
@@ -25,6 +28,48 @@ const HEADER_FILL = 'FF2563EB'; // --color-primary-600
 const HEADER_TEXT = 'FFFFFFFF';
 const MUTED_TEXT = 'FF64748B'; // --color-text-muted
 
+/**
+ * Logo del encabezado (`erp-backend/assets/logo.png`).
+ *
+ * La ruta sube tres niveles desde este archivo porque `src/modules/reports` y
+ * `dist/modules/reports` están a la misma profundidad: resuelve igual con tsx en
+ * desarrollo y con `node dist/server.js` en producción, sin depender del directorio
+ * de trabajo.
+ *
+ * OJO AL DESPLEGAR: `assets/` queda FUERA de `dist/`, así que hay que copiarla junto
+ * al build o los reportes salen sin logo (ver README).
+ */
+const LOGO_PATH = join(__dirname, '../../../assets/logo.png');
+const LOGO_WIDTH = 78;
+const LOGO_HEIGHT = 72;
+/** Excel mide el alto de fila en puntos y las imágenes en píxeles: 1px = 0.75pt. */
+const PX_TO_PT = 0.75;
+/** Aire entre el logo y el título, para que no queden pegados. */
+const LOGO_ROW_PADDING_PT = 4;
+/** Unidad de posicionamiento de OOXML. Es la misma que ExcelJS usa para `ext`. */
+const EMU_PER_PX = 9525;
+/** Margen mínimo con el borde de la celda, si la columna es más angosta que el logo. */
+const LOGO_MIN_MARGIN_PX = 6;
+
+/**
+ * Se lee una sola vez al cargar el módulo: `writeReportWorkbook` corre por request.
+ * Si falta o no se puede leer, los reportes se generan sin logo — es decoración y no
+ * debe tumbar una descarga.
+ */
+const logoBuffer = readLogo();
+
+function readLogo(): Buffer | undefined {
+  try {
+    return readFileSync(LOGO_PATH);
+  } catch (err) {
+    logger.warn('No se pudo leer el logo: los reportes se generarán sin él', {
+      err,
+      path: LOGO_PATH,
+    });
+    return undefined;
+  }
+}
+
 export async function writeReportWorkbook(stream: Writable, payload: ReportPayload): Promise<void> {
   const workbook = new Workbook();
   workbook.creator = 'PerliNor ERP';
@@ -32,11 +77,60 @@ export async function writeReportWorkbook(stream: Writable, payload: ReportPaylo
 
   const sheet = workbook.addWorksheet(sheetName(payload.title));
 
+  writeLogo(sheet, workbook, payload);
   writeTitleBlock(sheet, payload);
   writeTable(sheet, payload);
   writeTotals(sheet, payload);
 
   await workbook.xlsx.write(stream);
+}
+
+/**
+ * Banda con el logo, arriba del título, centrado en la celda A1.
+ *
+ * En Excel las imágenes flotan sobre la grilla en vez de ocupar celdas, así que hay que
+ * reservarles una fila con altura suficiente o taparían el título. Se dimensiona por
+ * píxeles (`ext`) y no por rango de celdas porque los anchos de columna se fijan después,
+ * en `writeTable`: una imagen anclada a celdas se estiraría con ellos.
+ *
+ * El centrado se hace con offsets nativos en EMU. La alternativa —anclar con un `col`
+ * fraccionario— NO sirve: ExcelJS convierte esa fracción con una escala interna
+ * (`width * 10000`) que no equivale al ancho real de la columna, así que un 0.5 desplaza
+ * unos pocos píxeles en lugar de centrar.
+ */
+function writeLogo(sheet: Worksheet, workbook: Workbook, payload: ReportPayload): void {
+  if (!logoBuffer) return;
+
+  const row = sheet.addRow([]);
+  const rowHeightPt = LOGO_HEIGHT * PX_TO_PT + LOGO_ROW_PADDING_PT;
+  row.height = rowHeightPt;
+
+  const firstColumn = payload.columns[0];
+  const columnPx = columnWidthToPx(firstColumn?.width ?? defaultWidth(firstColumn?.format));
+  const offsetX = Math.max(LOGO_MIN_MARGIN_PX, Math.round((columnPx - LOGO_WIDTH) / 2));
+  const offsetY = Math.max(0, Math.round((rowHeightPt / PX_TO_PT - LOGO_HEIGHT) / 2));
+
+  const imageId = workbook.addImage({ buffer: logoBuffer, extension: 'png' });
+  sheet.addImage(imageId, {
+    // Las anclas de ExcelJS son base 0; `row.number` es base 1. Los typings solo declaran
+    // `{col, row}`, pero el constructor de Anchor acepta los offsets nativos y son la
+    // única forma de fijar un margen exacto.
+    tl: {
+      nativeCol: 0,
+      nativeColOff: offsetX * EMU_PER_PX,
+      nativeRow: row.number - 1,
+      nativeRowOff: offsetY * EMU_PER_PX,
+    } as unknown as { col: number; row: number },
+    ext: { width: LOGO_WIDTH, height: LOGO_HEIGHT },
+  });
+}
+
+/**
+ * Ancho de columna de Excel → píxeles. La unidad es "caracteres del tipo por defecto",
+ * que con Calibri 11 a 96 dpi da 7px por unidad más 5px de relleno de celda.
+ */
+function columnWidthToPx(width: number): number {
+  return Math.round(width * 7) + 5;
 }
 
 /** Título + líneas de contexto (período, filtros aplicados), fusionadas a lo ancho. */
