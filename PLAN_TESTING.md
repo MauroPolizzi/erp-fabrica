@@ -1,5 +1,8 @@
 # Plan de Testing — PerliNor ERP (Backend + Frontend)
 
+> **📌 DOCUMENTO HISTÓRICO DE PLANIFICACIÓN — 26/06/2026.** Refleja el estado del proyecto y las decisiones vigentes en esa fecha; **no describe el sistema actual**.
+> No forma parte de la documentación entregada. Ver `GUIA_MAESTRA_DOCUMENTACION.md` §0.4, decisión D3.
+
 > Plan de implementación de tests **dividido por fases**, alineado al stack y a los patrones
 > que ya existen en el repo. Cubre los **endpoints del backend** y los **services/componentes
 > del frontend**. Cada fase espeja una fase funcional ya implementada (F0–F5).

@@ -1,0 +1,399 @@
+/* ============================================================================
+   Estilo IEEE — PerliNor ERP
+   Hoja de estilos de impresión para la documentación técnica y el manual.
+
+   Uso: se aplica al HTML generado a partir de los .md de docs/ y se imprime a
+   PDF desde el navegador. Ver docs/README.md.
+
+   Decisión de formato: COLUMNA SIMPLE. La plantilla de conferencia IEEE es a
+   dos columnas, pero está pensada para artículos de 6-8 páginas sin capturas.
+   Este informe lleva 39 capturas y tablas anchas: a dos columnas quedarían
+   ilegibles. Se conservan las convenciones IEEE que sí aportan —numeración
+   romana de secciones, epígrafes, estilo de tablas y referencias numeradas—
+   sobre una caja de texto de una sola columna.
+   Para pasar a dos columnas, ver el bloque del final.
+   ============================================================================ */
+
+/* ─────────────────────────── Página ─────────────────────────── */
+
+@page {
+  size: A4;
+  margin: 2.5cm 2cm 2.5cm 2cm;
+}
+
+@page :first {
+  margin: 0;                 /* la portada maneja sus propios márgenes */
+}
+
+/* ─────────────────────────── Base ─────────────────────────── */
+
+body {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 11pt;
+  line-height: 1.45;
+  color: #000;
+  text-align: justify;
+  hyphens: auto;
+  counter-reset: seccion figura tabla referencia;
+}
+
+p {
+  margin: 0 0 0.6em 0;
+  orphans: 3;                /* nunca dejar 1-2 líneas sueltas al pie */
+  widows: 3;
+}
+
+/* Primer párrafo tras un título: sin sangría. Los siguientes, con sangría. */
+p + p {
+  text-indent: 1.2em;
+}
+
+/* ──────────────────── Títulos y numeración IEEE ──────────────────── */
+
+/* Nivel 1 → I. TÍTULO DE SECCIÓN (versales, centrado, página nueva) */
+/* Nota: `figura` y `tabla` NO se reinician acá. En formato IEEE la numeración de
+   figuras y tablas es corrida a lo largo de todo el documento (Fig. 1 … Fig. 39),
+   no por capítulo. Solo se reinicia la numeración de subsecciones. */
+h1 {
+  counter-increment: seccion;
+  counter-reset: subseccion;
+  font-size: 12pt;
+  font-weight: bold;
+  font-variant: small-caps;
+  text-align: center;
+  text-transform: none;
+  margin: 0 0 1em 0;
+  padding-top: 0;
+  page-break-before: always;
+  page-break-after: avoid;
+}
+
+h1::before {
+  content: counter(seccion, upper-roman) ". ";
+}
+
+/* La portada y el primer título no fuerzan salto */
+h1.sin-numero,
+body > h1:first-of-type {
+  page-break-before: auto;
+}
+
+h1.sin-numero {
+  counter-increment: none;
+}
+
+h1.sin-numero::before {
+  content: none;
+}
+
+/* Nivel 2 → A. Subsección (itálica, alineada a la izquierda) */
+h2 {
+  counter-increment: subseccion;
+  counter-reset: subsubseccion;
+  font-size: 11pt;
+  font-weight: normal;
+  font-style: italic;
+  text-align: left;
+  margin: 1.2em 0 0.5em 0;
+  page-break-after: avoid;
+}
+
+h2::before {
+  content: counter(subseccion, upper-alpha) ". ";
+}
+
+/* Nivel 3 → 1) Sub-subsección (itálica, en línea con el texto) */
+h3 {
+  counter-increment: subsubseccion;
+  font-size: 11pt;
+  font-weight: normal;
+  font-style: italic;
+  margin: 0.9em 0 0.4em 0;
+  page-break-after: avoid;
+}
+
+h3::before {
+  content: counter(subsubseccion) ") ";
+}
+
+/* Nivel 4 → sin numerar, solo negrita */
+h4 {
+  font-size: 11pt;
+  font-weight: bold;
+  margin: 0.8em 0 0.3em 0;
+  page-break-after: avoid;
+}
+
+h4::before { content: none; }
+
+/* ─────────────────────────── Tablas ─────────────────────────── */
+
+/* IEEE: título ENCIMA, en versales, centrado, numeración romana. */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.8em 0 1.2em 0;
+  font-size: 9pt;
+  page-break-inside: avoid;
+}
+
+table caption {
+  counter-increment: tabla;
+  caption-side: top;
+  font-variant: small-caps;
+  font-size: 9pt;
+  text-align: center;
+  padding-bottom: 0.4em;
+  page-break-after: avoid;
+}
+
+table caption::before {
+  content: "Tabla " counter(tabla, upper-roman) "\A";
+  white-space: pre;
+  display: block;
+}
+
+th, td {
+  border: 0.5pt solid #000;
+  padding: 3pt 5pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  font-weight: bold;
+  text-align: center;
+  background: #f0f0f0;
+}
+
+/* Tablas anchas: se permite reducir el cuerpo sin romper la caja */
+table.compacta { font-size: 8pt; }
+table.compacta th, table.compacta td { padding: 2pt 3pt; }
+
+/* ──────────────────── Figuras y capturas ──────────────────── */
+
+/* IEEE: epígrafe DEBAJO, alineado al centro, "Fig. N." */
+figure {
+  margin: 1em 0;
+  text-align: center;
+  page-break-inside: avoid;
+}
+
+figure img {
+  max-width: 100%;
+  height: auto;
+  border: 0.5pt solid #999;
+}
+
+figure figcaption {
+  counter-increment: figura;
+  font-size: 9pt;
+  text-align: center;   /* si ocupa más de una línea, cambiar a justify */
+  margin-top: 0.4em;
+  text-indent: 0;
+}
+
+figure figcaption::before {
+  content: "Fig. " counter(figura) ". ";
+}
+
+/* Captura a media caja, para pantallas angostas (diálogos, formularios) */
+figure.media img { max-width: 60%; }
+
+/* ─────────── Capturas con zonas numeradas ───────────
+
+   Evita tener que dibujar los números sobre la imagen con un editor: se
+   posicionan por CSS sobre una captura sin editar. Las coordenadas van en
+   porcentaje, así que siguen siendo correctas si la imagen se reescala.
+
+   Uso:
+     <figure>
+       <div class="anotada">
+         <img src="../img/c08-layout.png" alt="…">
+         <span class="marca" style="left:9%;  top:46%">1</span>
+         <span class="marca" style="left:62%; top:7%">2</span>
+       </div>
+       <figcaption>…</figcaption>
+     </figure>
+*/
+.anotada {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;              /* elimina el hueco bajo la imagen */
+}
+
+.anotada img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 0.5pt solid #999;
+}
+
+.anotada .marca {
+  position: absolute;
+  transform: translate(-50%, -50%);   /* la coordenada es el centro del círculo */
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+  /* Aro blanco: mantiene el número legible sobre cualquier fondo de la captura */
+  box-shadow: 0 0 0 2px #fff;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+/* ─────────────────────────── Código ─────────────────────────── */
+
+code, kbd, samp {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 9pt;
+}
+
+pre {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 8.5pt;
+  line-height: 1.3;
+  background: #f7f7f7;
+  border: 0.5pt solid #ccc;
+  padding: 6pt 8pt;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  page-break-inside: avoid;
+  text-indent: 0;
+  text-align: left;
+}
+
+pre code { font-size: inherit; background: none; border: none; padding: 0; }
+
+/* ─────────────────────────── Listas ─────────────────────────── */
+
+ul, ol {
+  margin: 0.4em 0 0.8em 0;
+  padding-left: 1.8em;
+}
+
+li { margin-bottom: 0.25em; text-align: justify; }
+li p { text-indent: 0; }
+
+/* ─────────────────────── Citas y notas ─────────────────────── */
+
+blockquote {
+  margin: 0.8em 0 0.8em 1.5em;
+  padding-left: 0.8em;
+  border-left: 2pt solid #999;
+  font-size: 10pt;
+}
+
+blockquote p { text-indent: 0; }
+
+/* Recuadro de advertencia — para las notas críticas del manual
+   (Ingreso vs. Ajuste, saldo vs. filtro, irreversibilidad de la anulación). */
+blockquote.aviso {
+  border: 1pt solid #000;
+  border-left: 3pt solid #000;
+  background: #f4f4f4;
+  padding: 8pt 10pt;
+  margin: 1em 0;
+  font-size: 10pt;
+  page-break-inside: avoid;
+}
+
+/* ─────────────────────── Referencias IEEE ─────────────────────── */
+
+/* Bibliografía: lista numerada entre corchetes, sin sangría francesa. */
+ol.referencias {
+  list-style: none;
+  padding-left: 2.2em;
+  font-size: 9.5pt;
+}
+
+ol.referencias li {
+  counter-increment: referencia;
+  position: relative;
+  text-align: left;
+  margin-bottom: 0.35em;
+}
+
+ol.referencias li::before {
+  content: "[" counter(referencia) "]";
+  position: absolute;
+  left: -2.2em;
+}
+
+/* ─────────────────────────── Portada ─────────────────────────── */
+
+.portada {
+  page-break-after: always;
+  text-align: center;
+  padding: 3cm 2.5cm;
+  height: 100%;
+}
+
+.portada .logo { width: 3.5cm; margin-bottom: 1.2cm; }
+.portada .institucion { font-size: 13pt; font-weight: bold; line-height: 1.4; }
+.portada .facultad { font-size: 12pt; margin-bottom: 2.5cm; }
+.portada .tipo { font-size: 11pt; font-variant: small-caps; letter-spacing: 0.05em; }
+.portada .titulo {
+  font-size: 20pt;
+  font-weight: bold;
+  margin: 0.8cm 0 0.4cm 0;
+  line-height: 1.25;
+}
+.portada .subtitulo { font-size: 13pt; font-style: italic; margin-bottom: 2.5cm; }
+.portada .datos { font-size: 12pt; line-height: 1.9; }
+.portada .datos .etiqueta { font-weight: bold; }
+.portada .fecha { margin-top: 2.5cm; font-size: 11pt; }
+.portada p { text-indent: 0; text-align: center; }
+
+/* ───────────────────── Índice y utilidades ───────────────────── */
+
+.indice { page-break-after: always; }
+.indice ul { list-style: none; padding-left: 1em; }
+.indice p { text-indent: 0; }
+
+.salto { page-break-before: always; }
+.sin-salto { page-break-inside: avoid; }
+.centrado { text-align: center; }
+
+hr { border: none; border-top: 0.5pt solid #ccc; margin: 1.2em 0; }
+
+a { color: #000; text-decoration: none; }
+
+/* En papel, una URL sin su destino visible no sirve: se imprime entre paréntesis.
+   Se excluyen las anclas internas, que no aportan nada impresas. */
+@media print {
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    word-break: break-all;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   OPCIONAL — Dos columnas (plantilla de conferencia IEEE)
+   Descomentar SOLO si la cátedra exige el formato de dos columnas.
+   Advertencia: las tablas anchas y las capturas a ancho completo
+   se romperán y habrá que marcarlas una por una con .ancho-total.
+   ══════════════════════════════════════════════════════════════
+
+body {
+  column-count: 2;
+  column-gap: 0.6cm;
+  font-size: 10pt;
+}
+
+h1 { column-span: all; }
+
+.ancho-total,
+table.ancho-total,
+figure.ancho-total {
+  column-span: all;
+}
+*/

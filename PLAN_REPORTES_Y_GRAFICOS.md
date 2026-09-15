@@ -1,5 +1,8 @@
 # Plan de implementación — Reportería y gráficos de Dashboard
 
+> **📌 DOCUMENTO HISTÓRICO DE PLANIFICACIÓN — 11/08/2026.** Refleja el estado del proyecto y las decisiones vigentes en esa fecha; **no describe el sistema actual**.
+> No forma parte de la documentación entregada. Ver `GUIA_MAESTRA_DOCUMENTACION.md` §0.4, decisión D3.
+
 > Documento de planificación basado en **auditoría del código real** de `erp-backend` y `erp-frontend`.
 > Fecha: 2026-08-11. Estado base: MVP estable (commit `1779b52 fix 10 dashboard real KPIs`).
 > **No contiene código implementado.** Es la especificación previa a la ejecución.

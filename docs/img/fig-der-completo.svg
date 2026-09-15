@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 620" width="1120" height="620"
+     font-family="Segoe UI, Helvetica, Arial, sans-serif">
+
+  <defs>
+    <marker id="p" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="5" markerHeight="5">
+      <circle cx="4" cy="4" r="3" fill="#111"/>
+    </marker>
+    <marker id="pg" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="5" markerHeight="5">
+      <circle cx="4" cy="4" r="3" fill="#999"/>
+    </marker>
+  </defs>
+
+  <style>
+    .grupo   { fill:#fafbfd; stroke:#c7d0dd; stroke-width:1.2; }
+    .grupoNo { fill:#fafafa; stroke:#d6d6d6; stroke-width:1.2; stroke-dasharray:5 3; }
+    .tGrupo  { font-size:10.5px; font-weight:700; fill:#64748b; letter-spacing:.04em; }
+    .ent     { fill:#fff; stroke:#2563eb; stroke-width:1.5; }
+    .entNo   { fill:#fff; stroke:#9aa3ae; stroke-width:1.2; stroke-dasharray:4 3; }
+    .nom     { font-size:10.5px; font-weight:600; text-anchor:middle; fill:#0f172a; }
+    .nomNo   { font-size:10.5px; font-weight:600; text-anchor:middle; fill:#64748b; }
+    .campo   { font-size:8.3px; text-anchor:middle; fill:#64748b; }
+    .rel     { stroke:#111; stroke-width:1.1; fill:none; }
+    .relNo   { stroke:#9aa3ae; stroke-width:1; fill:none; stroke-dasharray:4 3; }
+  </style>
+
+  <!-- ══════════════════ GRUPO: ACCESO Y SEGURIDAD ══════════════════ -->
+  <rect class="grupo" x="30" y="50" width="320" height="255" rx="5"/>
+  <text class="tGrupo" x="44" y="68">ACCESO Y SEGURIDAD</text>
+
+  <rect class="ent" x="60" y="82" width="120" height="32" rx="3"/>
+  <text class="nom" x="120" y="102">Rol</text>
+
+  <rect class="ent" x="210" y="82" width="120" height="32" rx="3"/>
+  <text class="nom" x="270" y="102">Permiso</text>
+
+  <rect class="ent" x="135" y="140" width="120" height="30" rx="3"/>
+  <text class="nom" x="195" y="159">RolPermiso</text>
+
+  <rect class="ent" x="60" y="205" width="120" height="44" rx="3"/>
+  <text class="nom" x="120" y="223">Usuario</text>
+  <text class="campo" x="120" y="238">email · rol · vigente</text>
+
+  <rect class="ent" x="210" y="205" width="120" height="44" rx="3"/>
+  <text class="nom" x="270" y="220">Token de</text>
+  <text class="nom" x="270" y="232">recuperación</text>
+  <text class="campo" x="270" y="245">hash · vence · usado</text>
+
+  <!-- relaciones internas -->
+  <path class="rel" d="M 120 140 L 120 114" marker-end="url(#p)"/>
+  <path class="rel" d="M 135 155 L 120 155 L 120 140"/>
+  <path class="rel" d="M 255 155 L 270 155 L 270 114" marker-end="url(#p)"/>
+  <path class="rel" d="M 120 205 L 120 170" marker-end="url(#p)"/>
+  <path class="rel" d="M 180 227 L 210 227" marker-end="url(#p)"/>
+
+  <!-- ══════════════════ GRUPO: AUDITORÍA ══════════════════ -->
+  <rect class="grupo" x="30" y="325" width="320" height="72" rx="5"/>
+  <text class="tGrupo" x="44" y="343">AUDITORÍA</text>
+
+  <rect class="ent" x="115" y="352" width="150" height="34" rx="3"/>
+  <text class="nom" x="190" y="366">Asiento de auditoría</text>
+  <text class="campo" x="190" y="379">acción · entidad · valores</text>
+
+  <path class="rel" d="M 165 352 L 165 268 L 120 268 L 120 249" marker-end="url(#p)"/>
+
+  <!-- ══════════════════ GRUPO: PERSONAL ══════════════════ -->
+  <rect class="grupo" x="30" y="417" width="320" height="66" rx="5"/>
+  <text class="tGrupo" x="44" y="435">PERSONAL</text>
+
+  <rect class="ent" x="135" y="442" width="120" height="30" rx="3"/>
+  <text class="nom" x="195" y="461">Empleado</text>
+
+  <!-- ══════════════════ GRUPO: INVENTARIO ══════════════════ -->
+  <rect class="grupo" x="380" y="50" width="320" height="215" rx="5"/>
+  <text class="tGrupo" x="394" y="68">INVENTARIO</text>
+
+  <rect class="ent" x="465" y="82" width="150" height="30" rx="3"/>
+  <text class="nom" x="540" y="101">Categoría</text>
+
+  <rect class="ent" x="395" y="140" width="140" height="42" rx="3"/>
+  <text class="nom" x="465" y="157">Material</text>
+  <text class="campo" x="465" y="171">sku · precio · stock</text>
+
+  <rect class="entNo" x="550" y="140" width="140" height="30" rx="3"/>
+  <text class="nomNo" x="620" y="159">Materia prima</text>
+
+  <rect class="ent" x="395" y="215" width="140" height="32" rx="3"/>
+  <text class="nom" x="465" y="229">Movimiento de</text>
+  <text class="nom" x="465" y="241">existencias</text>
+
+  <rect class="entNo" x="550" y="215" width="140" height="32" rx="3"/>
+  <text class="nomNo" x="620" y="229">Movimiento de</text>
+  <text class="nomNo" x="620" y="241">materia prima</text>
+
+  <path class="rel" d="M 490 112 L 490 126 L 465 126 L 465 140" marker-end="url(#p)"/>
+  <path class="relNo" d="M 590 112 L 590 126 L 620 126 L 620 140" marker-end="url(#pg)"/>
+  <path class="rel" d="M 465 182 L 465 215" marker-end="url(#p)"/>
+  <path class="relNo" d="M 620 170 L 620 215" marker-end="url(#pg)"/>
+
+  <!-- ══════════════════ GRUPO: PRODUCCIÓN ══════════════════ -->
+  <rect class="grupoNo" x="380" y="290" width="320" height="88" rx="5"/>
+  <text class="tGrupo" x="394" y="308">PRODUCCIÓN</text>
+
+  <rect class="entNo" x="395" y="318" width="140" height="32" rx="3"/>
+  <text class="nomNo" x="465" y="332">Registro de</text>
+  <text class="nomNo" x="465" y="344">producción</text>
+
+  <rect class="entNo" x="550" y="318" width="140" height="32" rx="3"/>
+  <text class="nomNo" x="620" y="332">Consumo de</text>
+  <text class="nomNo" x="620" y="344">producción</text>
+
+  <path class="relNo" d="M 535 334 L 550 334" marker-end="url(#pg)"/>
+  <path class="relNo" d="M 395 170 L 385 170 L 385 334 L 395 334" marker-end="url(#pg)"/>
+  <path class="relNo" d="M 690 155 L 698 155 L 698 300 L 705 300 L 705 360 L 620 360 L 620 350" marker-end="url(#pg)"/>
+
+  <!-- ══════════════════ GRUPO: COMERCIAL ══════════════════ -->
+  <rect class="grupo" x="730" y="50" width="360" height="240" rx="5"/>
+  <text class="tGrupo" x="744" y="68">COMERCIAL</text>
+
+  <rect class="ent" x="750" y="82" width="140" height="30" rx="3"/>
+  <text class="nom" x="820" y="101">Cliente</text>
+
+  <rect class="entNo" x="925" y="82" width="140" height="30" rx="3"/>
+  <text class="nomNo" x="995" y="101">Proveedor</text>
+
+  <rect class="ent" x="750" y="145" width="140" height="46" rx="3"/>
+  <text class="nom" x="820" y="163">Venta</text>
+  <text class="campo" x="820" y="177">estado · medio de pago</text>
+  <text class="campo" x="820" y="187">subtotal · impuesto · total</text>
+
+  <rect class="entNo" x="925" y="152" width="140" height="32" rx="3"/>
+  <text class="nomNo" x="995" y="172">Comprobante</text>
+
+  <rect class="ent" x="750" y="235" width="140" height="42" rx="3"/>
+  <text class="nom" x="820" y="252">Línea de venta</text>
+  <text class="campo" x="820" y="266">cantidad · precio congelado</text>
+
+  <path class="rel" d="M 820 145 L 820 112" marker-end="url(#p)"/>
+  <path class="rel" d="M 820 235 L 820 191" marker-end="url(#p)"/>
+  <path class="relNo" d="M 890 168 L 925 168" marker-end="url(#pg)"/>
+
+  <!-- ══════════════════ GRUPO: FINANZAS ══════════════════ -->
+  <rect class="grupo" x="730" y="315" width="360" height="168" rx="5"/>
+  <text class="tGrupo" x="744" y="333">FINANZAS</text>
+
+  <rect class="ent" x="750" y="345" width="140" height="32" rx="3"/>
+  <text class="nom" x="820" y="359">Caja</text>
+  <text class="campo" x="820" y="371">tipo · saldo</text>
+
+  <rect class="ent" x="750" y="415" width="140" height="42" rx="3"/>
+  <text class="nom" x="820" y="432">Movimiento de caja</text>
+  <text class="campo" x="820" y="446">importe · venta origen</text>
+
+  <rect class="entNo" x="925" y="345" width="140" height="32" rx="3"/>
+  <text class="nomNo" x="995" y="365">Pago a proveedor</text>
+
+  <path class="rel" d="M 820 415 L 820 377" marker-end="url(#p)"/>
+  <path class="rel" d="M 750 175 L 720 175 L 720 436 L 750 436" marker-end="url(#p)"/>
+  <path class="relNo" d="M 1065 97 L 1080 97 L 1080 361 L 1065 361" marker-end="url(#pg)"/>
+
+  <!-- ══════════════════ RELACIÓN CRUZADA: Material → Línea de venta ══════════════════ -->
+  <path class="rel" d="M 535 178 L 712 178 L 712 256 L 748 256" marker-end="url(#p)"/>
+
+  <!-- ══════════════════ CONECTOR: Usuario → Venta ══════════════════ -->
+  <circle cx="196" cy="227" r="8" fill="#fff" stroke="#111" stroke-width="1.2"/>
+  <text x="196" y="231" text-anchor="middle" font-size="9" font-weight="700">1</text>
+  <path class="rel" d="M 180 227 L 188 227"/>
+
+  <circle cx="905" cy="168" r="8" fill="#fff" stroke="#111" stroke-width="1.2"/>
+  <text x="905" y="172" text-anchor="middle" font-size="9" font-weight="700">1</text>
+  <text x="918" y="140" font-size="8.5" fill="#475569">usuario que</text>
+  <text x="918" y="150" font-size="8.5" fill="#475569">registró la venta</text>
+
+  <!-- ══════════════════ REFERENCIAS ══════════════════ -->
+  <line x1="30" y1="512" x2="1090" y2="512" stroke="#ccc" stroke-width="1"/>
+
+  <rect class="ent" x="40" y="528" width="26" height="16" rx="3"/>
+  <text x="76" y="540" font-size="10" fill="#333">Entidad con implementación — <tspan font-weight="600">15</tspan></text>
+
+  <rect class="entNo" x="300" y="528" width="26" height="16" rx="3"/>
+  <text x="336" y="540" font-size="10" fill="#333">Entidad prevista, sin implementación — <tspan font-weight="600">7</tspan></text>
+
+  <circle cx="640" cy="536" r="8" fill="#fff" stroke="#111" stroke-width="1.2"/>
+  <text x="640" y="540" text-anchor="middle" font-size="9" font-weight="700">1</text>
+  <text x="656" y="540" font-size="10" fill="#333">Relación continuada en otro punto del diagrama</text>
+
+  <text x="40" y="566" font-size="9.5" fill="#666">
+    Las entidades sin implementación corresponden a las áreas excluidas del alcance entregado: materias primas, producción, proveedores,
+  </text>
+  <text x="40" y="579" font-size="9.5" fill="#666">
+    pagos a proveedores y facturación. Fueron modeladas desde el inicio para que su incorporación futura no exija rediseñar las relaciones.
+  </text>
+  <text x="40" y="597" font-size="9.5" fill="#888" font-style="italic">
+    Los atributos de cada entidad se detallan en el diccionario de datos de este capítulo.
+  </text>
+</svg>

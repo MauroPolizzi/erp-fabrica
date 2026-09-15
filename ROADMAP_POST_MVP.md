@@ -1,5 +1,8 @@
 # Evaluación y Roadmap Post-MVP — PerliNor ERP
 
+> **📌 DOCUMENTO HISTÓRICO DE EVALUACIÓN Y PLANIFICACIÓN — 27/07/2026.** Refleja el estado del proyecto y las decisiones vigentes en esa fecha; **no describe el sistema actual**.
+> No forma parte de la documentación entregada. Ver `GUIA_MAESTRA_DOCUMENTACION.md` §0.4, decisión D3.
+
 > Documento de recomendaciones basado en **auditoría del código real** (no de la documentación).
 > Fecha: 2026-07-27.
 

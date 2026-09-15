@@ -1,5 +1,8 @@
 # Plan de Implementación — MVP Demo de Venta de Material (`erp-frontend`)
 
+> **📌 DOCUMENTO HISTÓRICO DE PLANIFICACIÓN — 18/06/2026.** Refleja el estado del proyecto y las decisiones vigentes en esa fecha; **no describe el sistema actual**.
+> No forma parte de la documentación entregada. Ver `GUIA_MAESTRA_DOCUMENTACION.md` §0.4, decisión D3.
+
 > Documento de planificación para una **demo funcional de corto alcance** del frontend Angular.
 > **Revisado contra el estado real del repositorio** (no sobre supuestos). Contrato de API verificado contra el backend `erp-backend` **ya implementado**.
 > Objetivo único: demostrar el flujo de **venta de un material de punta a punta** desde la UI, reutilizando la arquitectura e infraestructura ya existentes.

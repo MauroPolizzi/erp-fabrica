@@ -1,5 +1,8 @@
 # Plan de implementación — Recuperación de contraseña + Búsqueda en grillas
 
+> **📌 DOCUMENTO HISTÓRICO DE PLANIFICACIÓN — 14/08/2026.** Refleja el estado del proyecto y las decisiones vigentes en esa fecha; **no describe el sistema actual**.
+> No forma parte de la documentación entregada. Ver `GUIA_MAESTRA_DOCUMENTACION.md` §0.4, decisión D3.
+
 > Basado en auditoría del código real de `erp-backend` y `erp-frontend`.
 > Fecha: 2026-08-14. Base: rama `dev`, commit `5dbeec6` (MVP + reportería/gráficos estables).
 >
