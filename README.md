@@ -1,5 +1,5 @@
 # PerliNor ERP — erp-fabrica
-
+ERP modular para fábrica: 11 módulos de negocio, Node + TypeScript + Prisma + PostgreSQL, Angular 19, CI con tests de integración.
 Monorepo del sistema ERP para PerliNor, gestionado con **pnpm workspaces**.
 
 ## Estructura
