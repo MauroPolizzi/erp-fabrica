@@ -352,6 +352,20 @@ ol.referencias li::before {
 .portada .fecha { margin-top: 2.5cm; font-size: 11pt; }
 .portada p { text-indent: 0; text-align: center; }
 
+/* ─────────── Separador de parte (documento combinado) ───────────
+
+   En el archivo que une los dos documentos, marca el comienzo de la segunda
+   parte: reinicia la numeración de capítulos, figuras y tablas para que el
+   manual empiece en I y en Fig. 1, igual que leído por separado.
+
+   No produce salida visible: cada parte ya tiene su propia portada. */
+.nueva-parte {
+  counter-reset: seccion 0 figura 0 tabla 0;
+  page-break-before: always;
+  height: 0;
+  margin: 0;
+}
+
 /* ───────────────────── Índice y utilidades ───────────────────── */
 
 .indice { page-break-after: always; }

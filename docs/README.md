@@ -13,14 +13,18 @@ docs/
 ├── GLOSARIO.md          ← vocabulario canónico. NORMATIVO: leer antes de escribir
 ├── estilo-ieee.css      ← hoja de estilos de impresión
 ├── img/                 ← logos y recursos compartidos
-├── tecnica/             ← documentación técnica (15 capítulos + anexos)
+├── unir.mjs             ← genera los archivos combinados para exportar
+├── tecnica/             ← documentación técnica (14 capítulos + anexos)
 │   ├── 00-portada.md
 │   ├── 01-introduccion.md
 │   └── …
-└── manual/              ← manual de usuario (12 capítulos)
+└── manual/              ← manual de usuario (12 capítulos + glosario)
     ├── 00-portada.md
     └── …
 ```
+
+Los tres archivos que produce `unir.mjs` —`documentacion-tecnica.md`, `manual-usuario.md` y
+`documentacion-completa.md`— se regeneran con el script y **no se editan a mano**.
 
 Un archivo por capítulo, con prefijo numérico para que el orden alfabético sea el orden de lectura.
 El índice de capítulos está en `GUIA_MAESTRA_DOCUMENTACION.md` §7 (técnica) y §9 (manual).
@@ -64,11 +68,26 @@ cd docs
 node unir.mjs
 ```
 
-Genera `documentacion-tecnica.md` y `manual-usuario.md` en `docs/`, con los capítulos en orden y
-las rutas de imagen corregidas al nuevo nivel de directorio.
+Genera tres archivos en `docs/`, con los capítulos en orden y las rutas de imagen corregidas al
+nuevo nivel de directorio:
+
+| Archivo | Contenido | Cuándo usarlo |
+|---|---|---|
+| `documentacion-tecnica.md` | 14 capítulos + anexos | Para trabajar o entregar por separado |
+| `manual-usuario.md` | 12 capítulos + glosario | Ídem |
+| **`documentacion-completa.md`** | **Ambos documentos** | **Para entregar un solo archivo** |
 
 > **Los archivos unidos no se editan.** Se corrige el capítulo correspondiente en `tecnica/` o
 > `manual/` y se vuelve a correr el script.
+
+### Sobre el documento combinado
+
+Las dos partes van una tras otra, cada una con su portada —que oficia de carátula— y su índice.
+Entre ambas hay un separador invisible, `<div class="nueva-parte">`, que **reinicia la numeración**
+de capítulos, figuras y tablas.
+
+Sin ese separador el manual quedaría numerado del XV al XXVI, contradiciendo su propio índice. Con
+él, cada parte se numera como si se leyera suelta: I a XIV la técnica, I a XII el manual.
 
 ### Opción A — Extensión de VS Code *(recomendada)*
 
@@ -97,8 +116,8 @@ No requiere instalar nada en el sistema: la extensión trae su propio Chromium.
 > **Advertencia.** La extensión aplica sus propios márgenes y **ignora la regla `@page`** del CSS:
 > por eso los márgenes van en la configuración de arriba y no en la hoja de estilos.
 
-Con el paso previo hecho, son **dos exportaciones**: `documentacion-tecnica.md` y
-`manual-usuario.md`.
+Con el paso previo hecho, para entregar alcanza con **una sola exportación**:
+`documentacion-completa.md`.
 
 ### Opción B — Pandoc
 
