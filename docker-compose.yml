@@ -1,4 +1,4 @@
-# Entorno de desarrollo local: PostgreSQL 16 + Adminer
+# Entorno de desarrollo local: PostgreSQL 16 + Adminer + Mailpit
 # Levantar:  docker compose up -d
 # Detener:   docker compose down
 services:
@@ -28,6 +28,18 @@ services:
       - "8080:8080"
     depends_on:
       - postgres
+
+  # SMTP de prueba: recibe los mails de la app y los muestra en http://localhost:8025
+  # en vez de entregarlos. Nada sale a internet, así que el link de recuperación de
+  # contraseña se clickea desde la bandeja sin tocar una casilla real.
+  # Acepta conexiones sin autenticación: SMTP_USER y SMTP_PASS van vacíos en el .env.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: erp_mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP — es el puerto al que apunta SMTP_PORT
+      - "8025:8025"   # Bandeja web
 
 volumes:
   erp_pgdata:

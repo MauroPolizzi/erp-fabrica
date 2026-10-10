@@ -1,9 +1,9 @@
 <p-table
-  [value]="rows()"
+  [value]="displayRows()"
   [columns]="columns()"
   [lazy]="true"
   [loading]="loading()"
-  [paginator]="true"
+  [paginator]="!awaitingSearch()"
   [rows]="rowsPerPage()"
   [totalRecords]="total()"
   [rowsPerPageOptions]="[10, 20, 50]"
@@ -14,17 +14,17 @@
 >
   @if (searchable()) {
     <ng-template pTemplate="caption">
-      <div class="flex justify-end">
-        <p-iconField iconPosition="left">
-          <p-inputIcon styleClass="pi pi-search" />
-          <input
-            pInputText
-            type="text"
-            [placeholder]="searchPlaceholder()"
-            (input)="onSearch($event)"
-          />
-        </p-iconField>
-      </div>
+      <p-iconField iconPosition="left" styleClass="block w-full max-w-xl">
+        <p-inputIcon styleClass="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          class="w-full p-inputtext-lg"
+          [placeholder]="searchPlaceholder()"
+          [attr.aria-label]="searchPlaceholder()"
+          (input)="onSearch($event)"
+        />
+      </p-iconField>
     </ng-template>
   }
 
@@ -75,7 +75,12 @@
   <ng-template pTemplate="emptymessage">
     <tr>
       <td [attr.colspan]="colspan()" class="text-center text-text-muted py-8">
-        {{ emptyMessage() }}
+        @if (awaitingSearch()) {
+          <i class="pi pi-search block text-2xl mb-2 opacity-60"></i>
+          {{ guideMessage() }}
+        } @else {
+          {{ emptyMessage() }}
+        }
       </td>
     </tr>
   </ng-template>

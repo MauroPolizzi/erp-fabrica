@@ -2,9 +2,11 @@ import { createApp } from './app';
 import { env } from './config/environment';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import { logger } from './shared/utils/logger';
+import { warnIfMailNotConfigured } from './shared/utils/mailer';
 
 async function bootstrap() {
   await connectDatabase();
+  warnIfMailNotConfigured();
   const app = createApp();
 
   const server = app.listen(env.PORT, () => {

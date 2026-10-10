@@ -3,7 +3,13 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-const AUTH_ENDPOINTS = ['/auth/login', '/auth/refresh'];
+// Endpoints públicos de auth: no llevan token ni disparan el flujo de refresh.
+const AUTH_ENDPOINTS = [
+  '/auth/login',
+  '/auth/refresh',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+];
 
 /**
  * Adjunta el access token (CONTEXT §8). Ante un 401, intenta refrescar el token

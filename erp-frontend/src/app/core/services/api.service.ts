@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/auth.model';
@@ -32,6 +32,22 @@ export class ApiService {
 
   getPaged<T>(path: string, params?: Record<string, string | number | boolean>): Observable<PagedResponse<T>> {
     return this.http.get<PagedResponse<T>>(`${this.base}${path}`, { params: this.toParams(params) });
+  }
+
+  /**
+   * Descarga binaria (reportes). A diferencia de `get`, no desempaqueta ningún sobre:
+   * se observa la respuesta completa para poder leer el nombre del archivo y los
+   * metadatos que el backend manda por cabecera (Content-Disposition, X-Report-Rows).
+   */
+  getBlob(
+    path: string,
+    params?: Record<string, string | number | boolean>,
+  ): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.base}${path}`, {
+      params: this.toParams(params),
+      responseType: 'blob',
+      observe: 'response',
+    });
   }
 
   post<T>(path: string, body: unknown): Observable<T> {

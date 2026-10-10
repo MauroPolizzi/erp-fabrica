@@ -10,6 +10,20 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(1),
   DEFAULT_PAGINATION_LIMIT: z.coerce.number().default(20),
   MAX_PAGINATION_LIMIT: z.coerce.number().default(100),
+
+  // Recuperación de contraseña
+  PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().positive().default(30),
+
+  // SMTP — opcional. Sin SMTP_HOST el mailer no envía y loguea el link (ver mailer.ts).
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().default(587),
+  SMTP_SECURE: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  MAIL_FROM: z.string().default('ERP PerliNor <no-reply@perlinor.local>'),
 });
 
 const parsed = envSchema.safeParse(process.env);

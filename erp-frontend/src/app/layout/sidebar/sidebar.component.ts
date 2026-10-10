@@ -37,6 +37,7 @@ export class SidebarComponent {
     { label: 'Usuarios', icon: 'pi pi-id-card', route: '/users', permission: 'users.read' },
     { label: 'Roles', icon: 'pi pi-shield', route: '/roles', permission: 'users.read' },
     { label: 'Auditoría', icon: 'pi pi-history', route: '/audit', permission: 'audit.read' },
+    { label: 'Reportes', icon: 'pi pi-file-excel', route: '/reports', permission: 'reports.read' },
   ];
 
   /** Ítems visibles según los permisos del usuario autenticado. */

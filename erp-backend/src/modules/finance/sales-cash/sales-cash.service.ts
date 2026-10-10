@@ -1,6 +1,13 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../../config/database';
 import { AppError } from '../../../shared/utils/app-error';
 import { buildMeta, type PaginationParams } from '../../../shared/utils/pagination';
+
+/** Filtros del listado de movimientos (todos opcionales). */
+export interface CashMovementFilters {
+  from?: Date;
+  to?: Date;
+}
 
 const registerSelect = {
   id: true,
@@ -29,9 +36,19 @@ export const salesCashService = {
     return getSalesRegisterOrThrow();
   },
 
-  async listMovements(params: PaginationParams) {
+  /**
+   * Movimientos de la caja, opcionalmente acotados por fecha. El filtro solo afecta al
+   * listado: el saldo de la caja (`getRegister`) es acumulado y no se recalcula por rango.
+   */
+  async listMovements(params: PaginationParams, filters: CashMovementFilters = {}) {
     const register = await getSalesRegisterOrThrow();
-    const where = { cashRegisterId: register.id };
+    const where: Prisma.CashMovementWhereInput = { cashRegisterId: register.id };
+    if (filters.from || filters.to) {
+      where.createdAt = {
+        ...(filters.from ? { gte: filters.from } : {}),
+        ...(filters.to ? { lte: filters.to } : {}),
+      };
+    }
 
     const [data, total] = await Promise.all([
       prisma.cashMovement.findMany({ where, skip: params.skip, take: params.limit, orderBy: { createdAt: 'desc' } }),

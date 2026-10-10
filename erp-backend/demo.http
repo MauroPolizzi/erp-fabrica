@@ -122,3 +122,51 @@ Content-Type: application/json
     { "finishedProductId": "{{productId}}", "quantity": 1000 }
   ]
 }
+
+### ─────────────────────────────────────────────────────────────────────────────
+### Recuperación de contraseña (endpoints públicos, sin Authorization)
+### Sin SMTP configurado, el link sale por la consola del backend:
+###   warn: SMTP no configurado ... http://localhost:4200/reset-password?token=<TOKEN>
+### Copiar ese <TOKEN> en @resetToken para seguir con los pasos R2 y R3.
+### ─────────────────────────────────────────────────────────────────────────────
+
+### R1. Solicitar recuperación (responde el mismo 200 exista o no el email)
+POST {{host}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "admin@perlinor.local"
+}
+
+###
+@resetToken = pegar-aca-el-token-del-log
+
+### R2. Verificar el token antes de mostrar el formulario -> { "valid": true }
+GET {{host}}/auth/reset-password/{{resetToken}}/validate
+
+### R3. Establecer la contraseña nueva (mínimo 8 caracteres)
+POST {{host}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "password": "nuevaClave123"
+}
+
+### R4. (Negativo) Reusar el mismo token -> 400 "El enlace de recuperación es inválido o expiró"
+POST {{host}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "password": "otraClave123"
+}
+
+### R5. Login con la contraseña nueva
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@perlinor.local",
+  "password": "nuevaClave123"
+}

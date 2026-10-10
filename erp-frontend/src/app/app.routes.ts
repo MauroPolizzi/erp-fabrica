@@ -12,6 +12,21 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent,
+      ),
+  },
+  {
+    // El token llega como query param (?token=...), tal como lo arma el mail del backend.
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/reset-password/reset-password.component').then(
+        (m) => m.ResetPasswordComponent,
+      ),
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -55,6 +70,10 @@ export const routes: Routes = [
       {
         path: 'audit',
         loadChildren: () => import('./features/audit/audit.routes').then((m) => m.AUDIT_ROUTES),
+      },
+      {
+        path: 'reports',
+        loadChildren: () => import('./features/reports/reports.routes').then((m) => m.REPORTS_ROUTES),
       },
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
     ],

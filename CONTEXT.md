@@ -47,6 +47,7 @@ Sistema ERP de gestión para una fábrica de productos de construcción.
 | Estado reactivo | Signals (nativo de Angular) | — |
 | Estilos | Tailwind CSS | 3.4.14 |
 | Componentes UI | PrimeNG + PrimeIcons | 17.18.11 / 7.0.0 |
+| Gráficos | Chart.js (vía `p-chart` de PrimeNG) | 4.5.1 |
 | Fechas | Day.js | 1.11.13 |
 | Decimales | decimal.js | 10.4.3 |
 | Exportación archivos | file-saver | 2.0.5 |
@@ -241,6 +242,15 @@ erp-frontend/src/app/
 - Permisos con formato `modulo.accion` (ej: `inventory.read`, `sales.create`).
 - Permiso comodín de administrador: `admin.*`.
 
+**Recuperación de contraseña** (endpoints públicos de `auth`):
+- `POST /auth/forgot-password` responde siempre 200 genérico (no permite enumerar cuentas).
+- El token es aleatorio de 256 bits; en `password_reset_tokens` se guarda solo su SHA-256.
+- Vence según `PASSWORD_RESET_TTL_MINUTES` (30 por defecto) y es de **un solo uso** (`used_at`).
+- `POST /auth/reset-password` invalida los demás tokens del usuario y deja un `AuditLog`.
+- Los tres endpoints tienen rate limit propio (5 por IP cada 15 min).
+- **Limitación conocida:** al ser los refresh tokens JWT stateless, un reset no cierra
+  las sesiones ya abiertas (hasta 7 días). Resolverlo requiere un store de refresh tokens.
+
 ---
 
 ## 9. Variables de Entorno (Backend)
@@ -254,6 +264,13 @@ JWT_ACCESS_SECRET=<secreto>
 JWT_REFRESH_SECRET=<secreto>
 DEFAULT_PAGINATION_LIMIT=20
 MAX_PAGINATION_LIMIT=100
+PASSWORD_RESET_TTL_MINUTES=30
+SMTP_HOST=            # opcional; sin host el link de recuperación se loguea (dev)
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM="ERP PerliNor <no-reply@perlinor.local>"
 ```
 
 ---

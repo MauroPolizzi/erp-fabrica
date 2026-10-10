@@ -1,5 +1,8 @@
 # Plan de Implementación — MVP Demo de Venta de Material (`erp-backend`)
 
+> **📌 DOCUMENTO HISTÓRICO DE PLANIFICACIÓN — 11/06/2026.** Refleja el estado del proyecto y las decisiones vigentes en esa fecha; **no describe el sistema actual**.
+> No forma parte de la documentación entregada. Ver `GUIA_MAESTRA_DOCUMENTACION.md` §0.4, decisión D3.
+
 > **Versión 2 — Revisada contra el estado real del repositorio (2026-06-11).**
 > Esta versión reemplaza al plan original, que asumía un arranque desde cero. La auditoría del código demostró que la base (bootstrap, schema, migración, auth, RBAC y el patrón CRUD) **ya está implementada**. Aquí solo queda el trabajo pendiente para cerrar el flujo de venta.
 > Objetivo único: demostrar el flujo de **venta de un material de punta a punta** reutilizando la arquitectura existente.

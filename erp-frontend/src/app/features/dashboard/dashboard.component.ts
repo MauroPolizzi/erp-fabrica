@@ -4,12 +4,13 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { CurrencyArsPipe } from '../../shared/pipes/currency-ars.pipe';
 import { DashboardService, DashboardSummary } from './dashboard.service';
+import { SalesChartComponent } from './sales-chart/sales-chart.component';
 
 /** Home post-login: KPIs de gestión (ventas del período, top clientes, stock bajo). */
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [PageHeaderComponent, LoadingSpinnerComponent, CurrencyArsPipe],
+  imports: [PageHeaderComponent, LoadingSpinnerComponent, CurrencyArsPipe, SalesChartComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.component.html',
 })

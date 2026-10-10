@@ -4,8 +4,15 @@ import { ZodError } from 'zod';
 import { AppError } from '../utils/app-error';
 import { logger } from '../utils/logger';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(err: unknown, _req: Request, res: Response, next: NextFunction) {
+  // Si la respuesta ya empezó a escribirse (p. ej. la descarga de un reporte en
+  // streaming), no se la puede reemplazar por un JSON de error: se delega al handler
+  // por defecto de Express, que corta la conexión.
+  if (res.headersSent) {
+    logger.error('Error luego de enviar los headers', { err });
+    return next(err);
+  }
+
   if (err instanceof ZodError) {
     return res.status(400).json({ error: 'Datos inválidos', details: err.flatten().fieldErrors });
   }

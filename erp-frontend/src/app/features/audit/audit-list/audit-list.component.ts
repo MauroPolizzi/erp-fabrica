@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import dayjs from 'dayjs';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
@@ -21,6 +22,13 @@ const ACTION_LABELS: Record<string, string> = {
   UPDATE: 'Modificación',
   DELETE: 'Baja',
 };
+
+/**
+ * Fecha de hoy en el formato que esperan los inputs date y el backend.
+ * Es función y no constante de módulo para que una sesión abierta de un día para el
+ * otro no siga anclada a la fecha de ayer.
+ */
+const today = (): string => dayjs().format('YYYY-MM-DD');
 
 /** Auditoría de solo lectura: listado filtrable + detalle con el diff de valores (JSON). */
 @Component({
@@ -52,8 +60,9 @@ export class AuditListComponent {
 
   entityFilter = '';
   actionFilter = '';
-  fromDate = '';
-  toDate = '';
+  // La grilla arranca acotada al día en curso en vez de traer todo el histórico.
+  fromDate = today();
+  toDate = today();
 
   private lastEvent: DataTableLazyEvent = { page: 1, limit: 10, search: '' };
 
@@ -89,12 +98,23 @@ export class AuditListComponent {
     this.load();
   }
 
+  /** Vuelve al estado por defecto: día actual, sin filtros de entidad ni acción. */
   clearFilters(): void {
     this.entityFilter = '';
     this.actionFilter = '';
-    this.fromDate = '';
-    this.toDate = '';
+    this.fromDate = today();
+    this.toDate = today();
     this.load();
+  }
+
+  /** Con el default (hoy, sin entidad ni acción) no tiene sentido ofrecer "Restablecer". */
+  hasCustomFilters(): boolean {
+    return (
+      this.entityFilter !== '' ||
+      this.actionFilter !== '' ||
+      this.fromDate !== today() ||
+      this.toDate !== today()
+    );
   }
 
   onView(row: AuditRow): void {
